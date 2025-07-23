@@ -134,3 +134,4 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+/app/static/bootstrap-icons-1.11.3

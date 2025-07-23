@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/static/images/favicon.ico" type="image/x-icon">
+  <title>控制台</title>
+  <script src="/static/jquery/jquery-3.6.4.min.js"></script>
+  <script src="/static/socket-io-4.7.4/socket.io.js"></script>
+  <script src="/static/js/layout.js"></script>
+  <script src="/static/js/jquery.fittext.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/bootstrap-5.3.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/bootstrap-slider-11.0.2/css/bootstrap-slider.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/layout.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/index-input.css">
+  <style>
+  @font-face {
+    font-family: NotoSansTC;
+    src: url(../static/fonts/NotoSansTC-VariableFont_wght.ttf);
+  }
+  body {
+    font-family: 'NotoSansTC', sans-serif;
+    font-style: normal;
+    background-color: black;
+  }
+  </style>
+</head>
+<body style="overflow-x: hidden;overflow-y: hidden;">
+<header>
+  <!-- Sidebar -->
+  <nav id="sidebarMenu" class="collapse d-lg-block sidebar" style="background-color: #121212;">
+    <div class="position-sticky">
+      <div class="list-group list-group-flush mx-3 mt-4">
+        <a id="bless" href="/" class="list-group-item list-group-item-action py-3 ripple active item-base" aria-current="true">
+          <span>電源控制</span>
+        </a>
+        <a id="user" href="/user.html" class="list-group-item list-group-item-action py-3 ripple item-base">
+          <span>祈福名單</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+  <!-- Sidebar -->
+
+  <!-- Navbar -->
+  <nav id="main-navbar" class="navbar navbar-expand-lg  fixed-top" style="background-color: black;">
+    <!-- Container wrapper -->
+    <div class="container-fluid">
+      <!-- Toggle button -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu"
+        aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-justify" style="color: white;"></i>
+      </button>
+
+      <!-- Brand -->
+      <!-- <i class="bi bi-gear-wide" style="color: #b3b3b3;"></i> -->
+      <a class="navbar-brand ms-1 fw-bolder a-text" style="font-size: 24px;" href="#">控制台</a>
+
+      <!-- Right links -->
+      <ul class="navbar-nav ms-auto d-flex flex-row">
+      </ul>
+    </div>
+    <!-- Container wrapper -->
+  </nav>
+  <!-- Navbar -->
+</header>
+<!--Main Navigation-->
+<div id="main-container" style="position: relative;overflow-x: hidden;overflow-y: hidden;">
+  <div id="layer-mid" style="position: absolute;z-index: 2;overflow-x: hidden;overflow-y: hidden;">
+    <div id="content-mid" style="position: relative;overflow-x: hidden;overflow-y: hidden;z-index: 2;color: white;">
+      <header class="head-top" style="background-color: #00365CFF;opacity: 1;">
+        <div class="p-3 fw-bolder" style="font-size: 24px;">電源控制</div>
+      </header>
+      
+      <div id="setting-container" class="mostly-customized-scrollbar" style="overflow-x: hidden;overflow-y: scroll;position: relative;scroll-behavior: smooth;">
+        <!-- <div id="scroll-point" class="top-bar-val top-bar">
+          <div class="top-bar-bg d-flex align-items-end">
+            <div class="p-3 fw-bolder" style="font-size: 34px;">電源控制</div>
+          </div>
+        </div> -->
+        <div class="top-bar-val setting-layout p-3" style="margin-top: 70px;">
+          <div style="width: 100%;">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-lg-1"></div>
+                <div class="col-lg-10">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div id="power" class="card-item">
+                        <div class="card-item-title">分電箱電源</div>
+                        <div class="card-item-subtitle">#全區域控制</div>
+                        <div class="card-item-body">
+                          <button type="button" class="btn btn-secondary" data-power="0" aria-label="開啟電源">ALL ON</button>
+                          <button type="button" class="btn btn-secondary" data-power="1" aria-label="關閉電源">ALL OFF</button>
+                        </div>
+                        <div class="card-item-subtitle">#單區域控制</div>
+                        <div class="card-item-body">
+                          <button type="button" class="btn btn-secondary" data-power="2" aria-label="開啟R區電源">R區 ON</button>
+                          <button type="button" class="btn btn-secondary" data-power="3" aria-label="關閉R區電源">R區 OFF</button>
+                        </div>
+                        <div class="card-item-body">
+                          <button type="button" class="btn btn-secondary" data-power="4" aria-label="開啟S區電源">S區 ON</button>
+                          <button type="button" class="btn btn-secondary" data-power="5" aria-label="關閉S區電源">S區 OFF</button>
+                        </div>
+                        <div class="card-item-body">
+                          <button type="button" class="btn btn-secondary" data-power="6" aria-label="開啟T區電源">T區 ON</button>
+                          <button type="button" class="btn btn-secondary" data-power="7" aria-label="關閉T區電源">T區 OFF</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div id="led" class="card-item">
+                        <div class="card-item-title">底座LED</div>
+                        <div class="card-item-body">
+                          <button type="button" class="btn btn-secondary" data-led="0" aria-label="開啟LED">LED ON</button>
+                          <button type="button" class="btn btn-secondary" data-led="1" aria-label="關閉LED">LED OFF</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-1"></div>
+              </div>
+            </div>
+            <div style="height: 1080px;"></div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- load Modal -->
+  <div class="modal fade" id="load-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="load-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row flex-column">
+              <div class="col pt-2"><div class="loading"></div></div>
+              <div class="col">
+                <p id="load-modal-title" class="text-center" style="font-size: 20px;margin-top: 15px;">等待裝置回應</p>
+              </div>
+              <div class="col">
+                <p id="load-timer" class="text-center" style="font-size: 12px;"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- alert Modal -->
+  <div class="modal fade" id="alert-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="alert-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm text-dark">
+      <div class="modal-content">
+        <!-- <div class="modal-header">
+          
+        </div> -->
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-sm-12">
+              <div id="alert-title" class="text-center">錯誤</div>
+              <hr>
+              <div id="alert-msg"></div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-center pt-2">
+            <!-- <button type="button" class="config-button mx-3" data-bs-dismiss="modal" aria-label="Close">否</button> -->
+            <button id="alert-close" type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">確定</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="shutdown-modal" tabindex="-1" aria-labelledby="shutdown-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm text-dark">
+      <div class="modal-content">
+        <div id="shutdown-form" class="modal-body">
+          <div class="row" style="height: 200px;">
+            <div class="col-12 align-self-center">
+              <div class="row flex-column align-items-center">
+                <div class="col-8 text-center" style="font-size: 24px;">是 否 關 閉 系 統</div>
+                <div class="col-10 text-center" style="margin-top: 40px;">
+                  <button type="button" class="btn btn-dark mx-3" data-bs-dismiss="modal" aria-label="Close">否</button>
+                  <button id="shutdown" type="button" class="btn btn-dark mx-3">是</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/static/bootstrap-5.3.2/js/bootstrap.bundle.min.js"></script>
+<script src="/static/bootstrap-slider-11.0.2/js/bootstrap-slider.js"></script>
+<script>
+var alertModal = bootstrap.Modal.getOrCreateInstance(document.querySelector('#alert-modal'));
+var shutdownModal = bootstrap.Modal.getOrCreateInstance(document.querySelector('#shutdown-modal'));
+var loadModal = bootstrap.Modal.getOrCreateInstance(document.querySelector('#load-modal'));
+function showAlert(data) {
+  $("#alert-msg").html(data['msg']);
+  alertModal.show();
+}
+function showLoading(data) {
+  $("#load-modal-title").html(data);
+  loadModal.show();
+}
+</script>
+<script>
+function ctrlPower(id, cmdName){
+  showLoading(cmdName);
+  $.ajax({
+    type: "GET",
+    url: `/api/power/${id}`,
+    dataType: "json",
+    contentType: "application/json",
+  })
+  .done(function(data) {
+    console.log(data);
+  })
+  .always(function() {
+    loadModal.hide();
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    showAlert(jqXHR.responseJSON);
+  });
+}
+$("#power .btn").click(function() {
+  let id = $(this).data("power");
+  let cmdName = $(this).attr('aria-label');
+  console.log(id);
+  console.log(cmdName);
+  ctrlPower(id, cmdName);
+});
+function ctrlLed(id, cmdName){
+  showLoading(cmdName);
+  $.ajax({
+    type: "GET",
+    url: `/api/led/${id}`,
+    dataType: "json",
+    contentType: "application/json",
+  })
+  .done(function(data) {
+    console.log(data);
+  })
+  .always(function() {
+    loadModal.hide();
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    showAlert(jqXHR.responseJSON);
+  });
+}
+$("#led .btn").click(function() {
+  let id = $(this).data("led");
+  let cmdName = $(this).attr('aria-label');
+  console.log(id);
+  console.log(cmdName);
+  ctrlLed(id, cmdName);
+});
+</script>
+<script>
+$(window).resize(function() {
+  SetupWindow();
+});
+
+$(window).ready(function() {
+  SetupWindow();
+});
+// $("#setting-container").on("scroll",()=>{
+//   if($("#scroll-point").offset().top<-18) $(".head-top").css('opacity', 1);
+//   else $(".head-top").css('opacity', 0);
+// });
+</script>
+</body>
+</html>

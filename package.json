@@ -1,0 +1,28 @@
+{
+  "name": "treasure-radio",
+  "version": "1.0.0",
+  "main": "webserver.js",
+  "scripts": {
+   "server": "node webserver.js",
+   "client": "node client.js",
+   "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "okome",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "csv": "^6.3.11",
+    "mongoose": "^8.3.1",
+    "express": "^4.19.2",
+    "mqtt": "^5.10.3",
+    "socket.io": "^4.7.5",
+    "winston": "^3.13.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "pkg": {
+    "assets": [
+      "app/static/**/*"
+    ]
+  }
+}

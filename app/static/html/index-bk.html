@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/static/images/favicon.ico" type="image/x-icon">
+  <title>隨意鳥地方-燈控系統</title>
+  <script src="/static/jquery/jquery-3.6.4.min.js"></script>
+  <script src="/static/socket-io-4.7.4/socket.io.js"></script>
+  <script src="/static/js/layout.js"></script>
+  <script src="/static/js/jquery.fittext.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/bootstrap-5.3.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/bootstrap-slider-11.0.2/css/bootstrap-slider.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/layout.css">
+  <style>
+  @font-face {
+    font-family: GenRyuMinTW;
+    src: url(../static/fonts/GenRyuMinTW-Bold.ttf);
+  }
+  body {
+    font-family: 'GenRyuMinTW', sans-serif;
+    font-style: normal;
+    background-color: black;
+    color: white;
+  }
+  </style>
+</head>
+<body>
+<header>
+  <!-- Navbar -->
+  <nav id="main-navbar" class="navbar navbar-expand-lg fixed-top">
+    <!-- Container wrapper -->
+    <div class="px-1 pt-1" style="width: 100%;">
+      <div class="d-flex justify-content-between" style="font-size: 2.5vw;">
+        <div>臺北101店</div>
+        <div name="nav-date">2024.10.5</div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div id="main-container" style="position: relative;overflow-x: hidden;overflow-y: hidden;">
+  <div id="layer-mid" style="position: absolute;z-index: 2;">
+    <div id="content-mid" style="position: relative;overflow-x: hidden;overflow-y: scroll;z-index: 2;">
+      <div class="px-1 py-1">
+        <div class="d-flex justify-content-between" style="font-size: 2.5vw;">
+          <div>臺北101店</div>
+          <div name="nav-date">2024.10.5</div>
+        </div>
+
+        <div class="row title-block">
+          <div class="col-6 col-md-5 col-lg-3 col-xl-3 py-1">
+            <img src="/static/images/title.png" class="img-fluid" alt="隨意鳥地方">
+          </div>
+        </div>
+
+        <div class="my-3" style="font-size: 7vw;">
+          藝術燈具控制系統
+        </div>
+
+        <div class="row">
+          <div class="col-6">
+            <div class="d-flex flex-column align-items-center">
+              <div>流水區</div>
+              <div id="a-button-switch" class="mt-2 button-switch" data-button-switch="a">
+                <div name="switch-value" style="padding-top: 5px;">Off</div>
+                <div class="button-circle"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex flex-column align-items-center">
+              <div>包廂區</div>
+              <div id="b-button-switch" class="mt-2 button-switch" data-button-switch="b">
+                <div name="switch-value" style="padding-top: 5px;">On</div>
+                <div class="button-circle"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row title-block mt-4" style="font-size: 20px;">
+          <div class="col-12">
+            燈光亮度 Brightness
+          </div>
+        </div>
+
+        <div class="row my-4">
+          <div class="col-12">
+            <div class="row my-3">
+              <div class="col-3">
+                <div class="d-flex justify-content-center align-items-center h-100">
+                  <div style="font-size: 20px;">流水區A</div>
+                </div>
+              </div>
+              <div id="a-brightness" class="col-9 bg-image">
+                <input id="a-brightness-slider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-tooltip="hide"/>
+                <!-- <div id="lock-offset-mask" class="mask">
+                  
+                  <div class="d-flex justify-content-between align-items-center h-100 text-dark">
+                    <i class="bi bi-brightness-alt-high" style="font-size: 25px;"></i>
+                    <div class="text-dark">40</div>
+                  </div> -->
+                  <!-- <div class="d-flex justify-content-center align-items-center h-100">
+                    <div>
+                      <div class="display-4 text-white text-center"><i class="bi bi-ban"></i></div>
+                      <div class="text-white mb-0 mt-1">系統尚未同步</div>
+                    </div>
+                  </div> -->
+                <!-- </div> -->
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="row my-4">
+              <div class="col-3">
+                <div class="d-flex justify-content-center align-items-center h-100">
+                  <div style="font-size: 20px;">流水區B</div>
+                </div>
+              </div>
+              <div id="c-brightness" class="col-9 bg-image">
+                <input id="c-brightness-slider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-tooltip="hide"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="row my-4">
+              <div class="col-3">
+                <div class="d-flex justify-content-center align-items-center h-100">
+                  <div style="font-size: 20px;">包廂區</div>
+                </div>
+              </div>
+              <div id="b-brightness" class="col-9 bg-image">
+                <input id="b-brightness-slider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-tooltip="hide"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row title-block mt-3" style="font-size: 20px;">
+          <div class="col-12">
+            包廂區燈光模式 Lighting Type
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-6 mt-4">
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="1">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">動 態 1</span>
+              </button>
+            </div>
+          </div>
+          <div class="col-6 mt-4">
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="2">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">動 態 2</span>
+              </button>
+            </div>
+          </div>
+          <div class="col-6 mt-4">
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="3">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">動 態 3</span>
+              </button>
+            </div>
+          </div>
+          <div class="col-6 mt-4">
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="4">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">動 態 4</span>
+              </button>
+            </div>
+          </div>
+          <div class="col-6 mt-4">
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="5">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">動 態 5</span>
+              </button>
+            </div>
+          </div>
+          <div class="col-6 mt-4">
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="6">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">動 態 6</span>
+              </button>
+            </div>
+          </div>
+          <div class="col-6 mt-4" hidden>
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="7">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">動 態 7</span>
+              </button>
+            </div>
+          </div>
+          <div class="col-6 mt-4" hidden>
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="8">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">動 態 8</span>
+              </button>
+            </div>
+          </div>
+          <div class="col-6 mt-4" hidden>
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="9">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">動 態 9</span>
+              </button>
+            </div>
+          </div>
+          <div class="col-6 mt-4" hidden>
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="10">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">動 態10</span>
+              </button>
+            </div>
+          </div>
+          <div class="col-6 mt-4">
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="11">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">循 環 <span style="visibility:hidden">1</span></span>
+              </button>
+            </div>
+          </div>
+          <div class="col-6 mt-4">
+            <div class="d-flex justify-content-center">
+              <button type="button" class="light-type-button d-flex align-items-center" data-light-type="12">
+                <i class="bi bi-brightness-low-fill" style="font-size: 40px;height: 55px;padding-bottom: 5px;margin-top: -2.5px;"></i>
+                <span class="ps-2">恆 亮 <span style="visibility:hidden">1</span></span>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div id="layer-bottom" style="position: absolute;z-index: 1;">
+    <div id="content-bottom" style="position: relative;overflow-x: hidden;overflow-y: hidden;z-index: 1;">
+
+    </div>
+  </div>
+  <!-- load Modal -->
+  <div class="modal fade" id="load-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="load-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row flex-column">
+              <div class="col pt-2"><div class="loading"></div></div>
+              <div class="col">
+                <p class="text-center" style="font-size: 20px;margin-top: 15px;">等待裝置回應</p>
+              </div>
+              <div class="col">
+                <p id="load-timer" class="text-center" style="font-size: 12px;"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- alert Modal -->
+  <div class="modal fade" id="alert-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="alert-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm text-dark">
+      <div class="modal-content">
+        <!-- <div class="modal-header">
+          
+        </div> -->
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-sm-12">
+              <div id="alert-title" class="text-center">錯誤</div>
+              <hr>
+              <div id="alert-msg"></div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-center pt-2">
+            <!-- <button type="button" class="config-button mx-3" data-bs-dismiss="modal" aria-label="Close">否</button> -->
+            <button id="alert-close" type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">確定</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/static/bootstrap-5.3.2/js/bootstrap.bundle.min.js"></script>
+<script src="/static/bootstrap-slider-11.0.2/js/bootstrap-slider.js"></script>
+<script>
+var alertModal = bootstrap.Modal.getOrCreateInstance(document.querySelector('#alert-modal'));
+function showAlert(data) {
+  $("#alert-msg").html(data['msg']);
+  alertModal.show();
+}
+</script>
+<script>
+function BrightnessEvent(id, val){
+  console.log(`Brightness: ${id}:${val}`);
+  let data = {};
+  let property = {};
+  property[id] = val;
+  data["brightness"] = property;
+  $.ajax({
+    type: "POST",
+    url: `/api/light/brightness`,
+    dataType: "json",
+    contentType: "application/json",
+    data: JSON.stringify(data)
+  })
+  .done(function(data) {
+    console.log(data);
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    showAlert(jqXHR.responseJSON);
+  });
+};
+let sliders = {};
+function SetupSliderBar() {
+  sliders['aBrightness'] = $("#a-brightness-slider").slider({"id": "a"}).data('slider');
+  sliders['bBrightness'] = $("#b-brightness-slider").slider({"id": "b"}).data('slider');
+  sliders['cBrightness'] = $("#c-brightness-slider").slider({"id": "c"}).data('slider');
+  sliders.aBrightness.setAttribute('updateVal', $(`#a-brightness`).find("div[name='brightness-value']"));
+  sliders.aBrightness.setValueAndUpdate(10);
+  sliders.aBrightness.JqueryPostEvent = BrightnessEvent;
+  sliders.aBrightness.blindTouchendEvent();
+
+  sliders.bBrightness.setAttribute('updateVal', $(`#b-brightness`).find("div[name='brightness-value']"));
+  sliders.bBrightness.setValueAndUpdate(10);
+  sliders.bBrightness.JqueryPostEvent = BrightnessEvent;
+  sliders.bBrightness.blindTouchendEvent();
+
+  sliders.cBrightness.setAttribute('updateVal', $(`#c-brightness`).find("div[name='brightness-value']"));
+  sliders.cBrightness.setValueAndUpdate(10);
+  sliders.cBrightness.JqueryPostEvent = BrightnessEvent;
+  sliders.cBrightness.blindTouchendEvent();
+}
+
+$(".button-switch").click(function() {
+  let data = {};
+  let property = {};
+  if($(this).hasClass("activate")) {
+    $(this).removeClass("activate");
+    $(this).find("div[name='switch-value']").html("Off");
+    
+    property[$(this).data('button-switch')] = false;
+    data["buttonSwitch"] = property;
+    SettingButtonSwitch(data);
+  }
+  else {
+    $(this).addClass("activate");
+    $(this).find("div[name='switch-value']").html("On");
+
+    property[$(this).data('button-switch')] = true;
+    data["buttonSwitch"] = property;
+    SettingButtonSwitch(data);
+  }
+});
+
+let bLightType;
+$(".light-type-button").click(function() {
+  if(bLightType==$(this).data('light-type')) return;
+  if(bLightType!=undefined) $(`[data-light-type='${bLightType}']`).removeClass("activate");
+  bLightType = $(this).data('light-type');
+  console.log(bLightType);
+  $(`[data-light-type='${bLightType}']`).addClass("activate");
+
+  SettingLightType(bLightType);
+});
+</script>
+<script>
+let carData;
+function SetupSetting() {
+  $.ajax({
+    type: "GET",
+    url: `/api/lights`,
+    dataType: "json",
+    contentType: "application/json"
+  })
+  .done(function(data) {
+    console.log(data);
+    if(data.id!=1) {
+      showAlert(data);
+      return;
+    }
+    let setting = data['msg'];
+    // button-Switch
+    if(setting.buttonSwitch.a) {
+      $("#a-button-switch").addClass("activate");
+      $("#a-button-switch").find("div[name='switch-value']").html("On");
+    } else {
+      $("#a-button-switch").removeClass("activate");
+      $("#a-button-switch").find("div[name='switch-value']").html("Off");
+    }
+    if(setting.buttonSwitch.b) {
+      $("#b-button-switch").addClass("activate");
+      $("#b-button-switch").find("div[name='switch-value']").html("On");
+    } else {
+      $("#b-button-switch").removeClass("activate");
+      $("#b-button-switch").find("div[name='switch-value']").html("Off");
+    }
+    // Sliders
+    sliders.aBrightness.setValueAndUpdate(setting.brightness.a);
+    sliders.bBrightness.setValueAndUpdate(setting.brightness.b);
+    sliders.cBrightness.setValueAndUpdate(setting.brightness.c);
+    // B Light Type
+    $(".light-type-button").each(function() {
+      bLightType = setting.bLightType;
+      if(bLightType==$(this).data('light-type')){
+        $(this).addClass("activate");
+      } else {
+        $(this).removeClass("activate");
+      }
+    });
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    showAlert(jqXHR.responseJSON);
+  });
+}
+function SettingButtonSwitch(data) {
+  $.ajax({
+    type: "POST",
+    url: `/api/light/buttonSwitch`,
+    dataType: "json",
+    contentType: "application/json",
+    data: JSON.stringify(data)
+  })
+  .done(function(data) {
+    console.log(data);
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    showAlert(jqXHR.responseJSON);
+  });
+}
+function SettingLightType(id) {
+  $.ajax({
+    type: "GET",
+    url: `/api/light/bLightType/${id}`,
+    dataType: "json",
+    contentType: "application/json",
+  })
+  .done(function(data) {
+    console.log(data);
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    showAlert(jqXHR.responseJSON);
+  });
+}
+function SetupData() {
+  $("div[name='nav-date']").each(function() {
+    const now = new Date();
+    $(this).html(`${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()}`);
+  });
+}
+</script>
+<script>
+$(window).resize(function() {
+  SetupWindow();
+});
+
+$(window).ready(function() {
+  SetupWindow();
+  SetupData();
+  SetupSliderBar();
+  SetupSetting();
+});
+</script>
+</body>
+</html>
