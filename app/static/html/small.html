@@ -656,7 +656,7 @@ function sendWitch(){
 
   $.ajax({
     type: "POST",
-    url: `http://127.0.0.1:8082/api/message/insert`,
+    url: `http://107.167.191.206:8082/api/message/insert`,
     dataType: "json",
     contentType: "application/json",
     data: JSON.stringify(data)
@@ -930,7 +930,7 @@ function setMarqueeAnime(article, select){
 function getLastArticle(){
   $.ajax({
     type: "GET",
-    url: `/api/message/last`,
+    url: `http://107.167.191.206:8082/api/message/last`,
     dataType: "json",
     contentType: "application/json",
   })
@@ -947,7 +947,7 @@ function getLastArticle(){
     const data = JSON.parse(localStorage.getItem('article'));
     setMarqueeAnime(data.article, data.select);
     setFinalArticle(data.article);
-    setThemeColor(data.msg.article, data.msg.select);
+    setThemeColor(data.article, data.select);
   });
 }
 </script>
