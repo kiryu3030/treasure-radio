@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/treasure-radio/app/static/images/favicon.ico" type="image/x-icon">
+  <title>這不只是你的鳴唱</title>
+  <script src="/treasure-radio/app/static/jquery/jquery-3.6.4.min.js"></script>
+  <script src="/treasure-radio/app/static/socket-io-4.7.4/socket.io.js"></script>
+  <script src="/treasure-radio/app/static/js/layout.js"></script>
+  <script src="/treasure-radio/app/static/js/jquery.fittext.js"></script>
+  <link rel="stylesheet" type="text/css" href="/treasure-radio/app/static/bootstrap-5.3.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/treasure-radio/app/static/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+  <!-- <link rel="stylesheet" type="text/css" href="/treasure-radio/app/static/bootstrap-slider-11.0.2/css/bootstrap-slider.min.css"> -->
+  <link rel="stylesheet" type="text/css" href="/treasure-radio/app/static/css/layout.css">
+  <link rel="stylesheet" type="text/css" href="/treasure-radio/app/static/css/treasure.css">
+  <style>
+  @font-face {
+    font-family: Cubic_11;
+    src: url(../treasure-radio/app/static/fonts/Cubic_11.ttf);
+  }
+  @font-face {
+    font-family: Noto Sans Symbols;
+    src: url(../treasure-radio/app/static/fonts/NotoSansSymbols-Regular.ttf);
+  }
+  body {
+    font-family: 'Cubic_11', 'Noto Sans Symbols', 'Arial Unicode MS', 'Segoe UI Symbol', 'Apple Symbols', sans-serif;
+    font-style: normal;
+    background-color: black;
+  }
+  </style>
+</head>
+<body style="overflow-x: hidden;overflow-y: hidden;">
+<!--Main Navigation-->
+<div id="main-container" style="position: relative;overflow-x: hidden;overflow-y: hidden;--main-theme-color: #19FA9C;--main-caret-color: #19c87f;">
+  <div id="layer-bottom" style="position: absolute;z-index: 2;overflow-x: hidden;overflow-y: hidden;">
+    <div id="content-bottom" style="position: relative;overflow-x: hidden;overflow-y: hidden;z-index: 2;color: black;">
+      <div id="top-page" class="py-5 px-5" style="color: var(--main-theme-color);">
+        <div class="container-fluid">
+          <div id="top-bar" class="row">
+            <div class="col-12">
+              <div style="width: 100%;">
+                <div class="d-flex justify-content-between">
+                  <div style="font-size: 60px;">這不只是你的鳴唱 ＞ ＞ ＞ </div>
+                  <div class="card" style="--bs-border-radius: 0px; --bs-border-color-translucent: var(--main-theme-color);">
+                    <div class="card-header text-center" style="--bs-card-cap-padding-y:0.15rem; background-color: var(--main-theme-color);font-size: 30px;">
+                      NOW LISTENING
+                    </div>
+                    <div class="card-body" style="background-color: rgb(0, 0, 0);color: var(--main-theme-color);">
+                      <div class="d-flex flex-column">
+                        <div class="text-start" style="font-size: 30px;">目前節目 ▶ <span name="selectSnow">新聞快訊</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div style="width: 100%; height: 800px;">
+                  <div id="intro-1">
+                    <div class="d-flex flex-column">
+                      <div style="margin-top: 230px;"></div>
+                      <div class="text-center" style="font-size: 50px;">這是您專屬的願望頻道，請輸入願望並送出 ...<br>願您所求，終將如願而至。</div>
+                      <div style="margin-top: 90px;"></div>
+                      <div class="text-center align-self-center py-3" style="font-size: 45px;border-style: solid;border-width: 1.6px;border-color: var(--main-theme-color);background-color: var(--main-theme-color);color: black;width: 60%;">＞ 按Enter下一步</div>
+                    </div>
+                  </div>
+                  <div id="intro-2" hidden>
+                    <div class="d-flex flex-column">
+                      <div style="margin-top: 180px;"></div>
+                      <div class="text-center" style="font-size: 50px;">請深呼吸，靜下心來。<br>準備好了嗎？讓我們開始許願吧！</div>
+                      <div class="d-flex justify-content-center align-items-center" style="width: 100%;height: 140px;">
+                        <div class="text-center" style="font-size: 70px;">Make a wish!</div>
+                      </div>
+                      <div class="text-center align-self-center py-3" style="font-size: 45px;border-style: solid;border-width: 1.6px;border-color: var(--main-theme-color);background-color: var(--main-theme-color);color: black;width: 60%;">＞ 按Enter下一步</div>
+                    </div>
+                  </div>
+                  <div id="name" hidden>
+                    <div class="d-flex flex-column">
+                      <div style="margin-top: 180px;"></div>
+                      <div class="text-center" style="font-size: 55px;">請輸入您的姓名或暱稱</div>
+                      <div class="d-flex justify-content-center align-items-center" style="width: 100%;height: 140px;">
+                        <input id="name-input" type="text" class="form-control text-center" maxlength="15" style="font-size: 50px;caret-color: var(--main-theme-color);width: 60%;border-radius:0px;border: 3px solid var(--main-theme-color);background-color: black;color: var(--main-theme-color);">
+                        <!-- <div id="lock-offset-mask" class="mask">
+                          <div class="d-flex">
+                            <div class="custom-input"></div>
+                          </div>
+                        </div> -->
+                        <!-- <div class="bg-image" style="width: 100%;height: 140px;">
+                          <input type="text" class="form-control" style="font-size: 40px;">
+                          <div id="lock-offset-mask" class="mask">
+                            <div class="d-flex">
+                              <div>
+                                <div class="text-white mb-0 mt-1"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div> -->
+                        
+                        
+                        <!-- <div class="custom-input" contenteditable="true"></div> -->
+                      </div>
+                      <!-- <div class="custom-input"></div> -->
+                      <div id="name-invalid" class="text-center" style="font-size: 30px;display: none;">請輸入中文或英文!</div>
+                      <div style="margin-top: 40px;"></div>
+                      <div class="text-center align-self-center py-3" style="font-size: 45px;border-style: solid;border-width: 1.6px;border-color: var(--main-theme-color);background-color: var(--main-theme-color);color: black;width: 60%;">＞ 按Enter下一步</div>
+                    </div>
+                  </div>
+                  <div id="age" hidden>
+                    <div class="d-flex flex-column">
+                      <div style="margin-top: 180px;"></div>
+                      <div class="text-center" style="font-size: 55px;">請輸入您的年齡</div>
+                      <div class="d-flex justify-content-center align-items-center" style="width: 100%;height: 140px;">
+                        <input id="age-input" type="number" class="form-control text-center" min="1" max="99" maxlength="2" style="font-size: 50px;caret-color: var(--main-theme-color);width: 60%;border-radius:0px;border: 3px solid var(--main-theme-color);background-color: black;color: var(--main-theme-color);">
+                      </div>
+                      <div id="age-invalid" class="text-center" style="font-size: 30px;display: none;">請輸入年齡!</div>
+                      <div style="margin-top: 40px;"></div>
+                      <div class="text-center align-self-center py-3" style="font-size: 45px;border-style: solid;border-width: 1.6px;border-color: var(--main-theme-color);background-color: var(--main-theme-color);color: black;width: 60%;">＞ 按Enter下一步</div>
+                    </div>
+                  </div>
+                  <div id="wish" hidden>
+                    <div class="d-flex flex-column">
+                      <div style="margin-top: 150px;"></div>
+                      <div class="text-center" style="font-size: 55px;">請輸入您的願望</div>
+                      <div class="text-center" style="font-size: 35px;">想一想，您最想許下的是哪一種願望？<br>是戀愛、學業、健康、家庭、事業，還是其他渴望呢？</div>
+                      <div class="d-flex justify-content-center align-items-center" style="width: 100%;height: 140px;">
+                        <input id="wish-input" type="text" class="form-control text-center" maxlength="50" style="font-size: 50px;caret-color: var(--main-theme-color);width: 60%;border-radius:0px;border: 3px solid var(--main-theme-color);background-color: black;color: var(--main-theme-color);">
+                      </div>
+                      <div id="wish-invalid" class="text-center" style="font-size: 30px;display: none;">請輸入一個願望!</div>
+                      <div style="margin-top: 40px;"></div>
+                      <div class="text-center align-self-center py-3" style="font-size: 45px;border-style: solid;border-width: 1.6px;border-color: var(--main-theme-color);background-color: var(--main-theme-color);color: black;width: 60%;">＞ 按Enter送出願望</div>
+                    </div>
+                  </div>
+                  <div id="select" hidden>
+                    <div class="d-flex flex-column">
+                      <div style="margin-top: 70px;"></div>
+                      <div class="text-center" style="font-size: 60px;">選擇收聽頻道</div>
+                      <div class="text-center mt-2" style="font-size: 45px;">您的願望，想在哪種節目實現呢？</div>
+                      <div class="d-flex justify-content-center align-items-center mt-4" style="width: 100%;height: 320px;margin-left: -30px;">
+                        <div id="select-type" class="d-flex flex-column" style="font-size: 45px;">
+                          <div class="p-1"><span class="select-type activate">▶ </span>新聞快訊</div>
+                          <div class="p-1"><span class="select-type">▶ </span>命理占卜</div>
+                          <div class="p-1"><span class="select-type">▶ </span>詩集閱讀</div>
+                          <div class="p-1"><span class="select-type">▶ </span>聽眾信箱</div>
+                        </div>
+                      </div>
+                      <div style="margin-top: 40px;"></div>
+                      <div class="text-center align-self-center py-3" style="font-size: 45px;border-style: solid;border-width: 1.6px;border-color: var(--main-theme-color);background-color: var(--main-theme-color);color: black;width: 60%;">以 ↑↓ 鍵切換節目，按 Enter 確認選擇</div>
+                    </div>
+                  </div>
+                  <div id="loading" hidden>
+                    <div class="d-flex flex-column">
+                      <div style="margin-top: 190px;"></div>
+                      <div class="d-flex justify-content-center align-items-center" style="width: 100%;height: 270px;">
+                        <div class="typing-text">您的願望即將實現</div>
+                        <!-- <div> <span id="article-done" style="visibility:hidden">■</span> <span id="audio-done" style="visibility:hidden">■</span> <span id="all-done" style="visibility:hidden">■</span></div> -->
+                      </div>
+                      <!-- <div id="temp-marquee" style="visibility:hidden">您現在收聽的是《鳴唱電台》一切美好都會實現，<span id="temp-article"></span></div> -->
+                    </div>
+                    <div class="d-flex justify-content-end" style="font-size: 15px;margin-top: 300px;">
+                      <div> <span id="article-done" style="visibility:hidden">■</span> <span id="audio-done" style="visibility:hidden">■</span> <span id="all-done" style="visibility:hidden">■</span></div>
+                    </div>
+                  </div>
+                  <div id="final" hidden>
+                    <div class="d-flex flex-column">
+                      <div style="margin-top: 180px;"></div>
+                      <div class="text-center" style="font-size: 55px;">請收聽「<span name="selectSnow">新聞快訊</span>」</div>
+                      <div id="final-article" class="text-center pt-5" style="font-size: 40px;"></div>
+                      <!-- <div class="marquee-container pt-5">
+                        <div id="final-marquee" class="marquee-content">
+                          <span id="final-article"></span>
+                        </div>
+                      </div> -->
+                      <div style="margin-top: 80px;"></div>
+                      <div class="text-center align-self-center py-3" style="font-size: 45px;border-style: solid;border-width: 1.6px;border-color: var(--main-theme-color);background-color: var(--main-theme-color);color: black;width: 60%;">＞ 按Enter再次許願</div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div class="col-12">
+              <div style="font-size: 24px;"><span id="bottom-datetime">2025/08/08 THU 12:10</span> ■ ■ ■ ■ ■</div>
+              <div id="error-log" style="font-size: 24px;opacity: 0.7;"></div>
+              <div id="temp-marquee" style="visibility:hidden">您現在收聽的是《鳴唱電台》一切美好都會實現，<span id="temp-article"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- <div id="setting-container" class="mostly-customized-scrollbar" style="overflow-x: hidden;overflow-y: scroll;position: relative;scroll-behavior: smooth;">
+        <div class="top-bar-val setting-layout p-3">
+          <div style="width: 100%;">
+            <div class="container-fluid">
+              <div class="row"></div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+    </div>
+  </div>
+  <div id="layer-mid" style="position: absolute;z-index: 2;overflow-x: hidden;overflow-y: hidden;background-color: black;">
+    <div id="content-mid" style="position: relative;overflow-x: hidden;overflow-y: hidden;z-index: 2;color: black;">
+      <div id="top-page" style="padding: 70px;">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12">
+              <div class="row">
+                <div class="col-7">
+                  <div class="d-flex justify-content-center align-items-center" style="width: 100%; height: 140px; background-color: var(--main-theme-color);">
+                    <div style="font-size: 70px;">這不只是你的鳴唱 ＞ ＞ ＞ </div>
+                  </div>
+                </div>
+                <div class="col-5 bg-image">
+                  <div style="width: 100%; height: 140px; background-color: var(--main-theme-color);"></div>
+                  <div id="lock-offset-mask" class="mask" style="background-image: url(/treasure-radio/app/static/images/Group.png);background-size: 50% 100%;">
+                    <div class="d-flex">
+                      <div>
+                        <div class="text-white mb-0 mt-1"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          <div class="row" style="color: var(--main-theme-color);margin-top: 40px;">
+            <div class="col-5">
+              <div class="card" style="--bs-border-radius: 0px; --bs-border-color-translucent: var(--main-theme-color);">
+                <div class="card-header text-center" style="--bs-card-cap-padding-y:0.15rem; background-color: var(--main-theme-color);font-size: 40px;">
+                  IMFORMATION
+                </div>
+                <div class="card-body" style="background-color: rgb(0, 0, 0);color: var(--main-theme-color);">
+                  <div class="d-flex flex-column">
+                    <div id="top-time" class="text-center" style="font-size: 250px;margin-bottom: -65px;margin-top: -35px;">00:00</div>
+                    <div id="top-date" class="text-center" style="font-size: 75px;">2025/01/01 Wed</div>
+                    <div style="margin-left: 55px;">
+                      <div class="text-start" style="font-size: 38px;">LOC:</div>
+                      <div class="text-start" style="font-size: 35px;">Treasure Hill Artist Village</div>
+                      <div class="text-start" style="font-size: 17px;height: 150px;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-7">
+              <div class="d-flex flex-column ps-2">
+                <div class="text-center pt-2" style="font-size: 150px;">Make a wish!</div>
+                <div>
+                  <div class="card mt-3" style="--bs-border-radius: 0px; --bs-border-color-translucent: var(--main-theme-color);">
+                    <div class="card-header text-center" style="--bs-card-cap-padding-y:0.15rem; background-color: var(--main-theme-color);font-size: 40px;">
+                      NOW LISTENING
+                    </div>
+                    <div class="card-body" style="background-color: rgb(0, 0, 0);color: var(--main-theme-color);">
+                      <div class="d-flex flex-column">
+                        <div class="text-start mt-3" style="font-size: 45px;">目前節目 ▶ <span name="selectSnow">新聞快訊</span></div>
+                        <div class="top-marquee-container mt-3">
+                          <div id="top-marquee" class="top-marquee-content">
+                            您現在收聽的是《鳴唱電台》一切美好都會實現，<span id="top-article">在一個平靜的周末早晨，張獲得了一個意想不到的驚喜。他在整理舊發票時，偶然發現自己中獎了，那是一張價值2000萬的發票。對於一個普通上班族來說，這簡直是天上掉下來的禮物。張哭笑不得，回想起過去節省每一分錢的日子。他一邊幻想著退休後的悠閒生活，一邊思考著應該如何合理運用這筆意外之財。張決定成立一個公益基金，幫助需要幫助的人，因為他深知，改變命運的除了幸運，更需要善良的心。這不僅是人生的轉折點，更是對每個人心靈的一次洗禮。</span>
+                          </div>
+                        </div>
+                        <!-- <div class="text-start mt-2" style="font-size: 13px;">您現在收聽的是《鳴唱電台》，一切美好都會實現 今天天氣預報</div> -->
+                        <div class="mt-3" style="font-size: 25px;">■ ■ ■ ■ ■ ■</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-center py-4" style="margin-top: 60px;font-size: 50px;border-style: solid;border-width: 1.6px;border-color: var(--main-theme-color);background-color: var(--main-theme-color);color: black;">＞ 按任一鍵開始互動</div>
+              </div>
+            </div>
+            <div class="col-12" style="visibility: hidden;">
+              <div id="top-temp-marquee" style="visibility:hidden">您現在收聽的是《鳴唱電台》一切美好都會實現，<span id="top-temp-article"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- <div id="setting-container" class="mostly-customized-scrollbar" style="overflow-x: hidden;overflow-y: scroll;position: relative;scroll-behavior: smooth;">
+        <div class="top-bar-val setting-layout p-3">
+          <div style="width: 100%;">
+            <div class="container-fluid">
+              <div class="row"></div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+    </div>
+  </div>
+  <div id="layer-top" style="position: absolute;z-index: 2;overflow-x: hidden;overflow-y: hidden;background-color: black;">
+    <div id="content-top" style="position: relative;overflow-x: hidden;overflow-y: hidden;z-index: 2;color: black;">
+      <div id="wifi-disconnect" class="p-2" style="visibility:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#adadad" class="wifi-off" viewBox="0 0 16 16">
+          <path d="M10.706 3.294A12.6 12.6 0 0 0 8 3C5.259 3 2.723 3.882.663 5.379a.485.485 0 0 0-.048.736.52.52 0 0 0 .668.05A11.45 11.45 0 0 1 8 4q.946 0 1.852.148zM8 6c-1.905 0-3.68.56-5.166 1.526a.48.48 0 0 0-.063.745.525.525 0 0 0 .652.065 8.45 8.45 0 0 1 3.51-1.27zm2.596 1.404.785-.785q.947.362 1.785.907a.482.482 0 0 1 .063.745.525.525 0 0 1-.652.065 8.5 8.5 0 0 0-1.98-.932zM8 10l.933-.933a6.5 6.5 0 0 1 2.013.637c.285.145.326.524.1.75l-.015.015a.53.53 0 0 1-.611.09A5.5 5.5 0 0 0 8 10m4.905-4.905.747-.747q.886.451 1.685 1.03a.485.485 0 0 1 .047.737.52.52 0 0 1-.668.05 11.5 11.5 0 0 0-1.811-1.07M9.02 11.78c.238.14.236.464.04.66l-.707.706a.5.5 0 0 1-.707 0l-.707-.707c-.195-.195-.197-.518.04-.66A2 2 0 0 1 8 11.5c.374 0 .723.102 1.021.28zm4.355-9.905a.53.53 0 0 1 .75.75l-10.75 10.75a.53.53 0 0 1-.75-.75z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="shutdown-modal" tabindex="-1" aria-labelledby="shutdown-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered text-dark">
+      <div class="modal-content">
+        <div id="shutdown-form" class="modal-body">
+          <div class="row" style="height: 200px;">
+            <div class="col-12 align-self-center">
+              <div class="row flex-column align-items-center">
+                <div id="conferm-title" class="col-8 text-center" style="font-size: 24px;">是否執行</div>
+                <div class="col-10 text-center" style="margin-top: 40px;">
+                  <button type="button" class="btn btn-dark mx-3" data-bs-dismiss="modal" aria-label="Close">否</button>
+                  <button id="shutdown" type="button" class="btn btn-dark mx-3">是</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- load Modal -->
+  <div class="modal fade" id="load-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="load-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row flex-column">
+              <div class="col pt-2"><div class="loading"></div></div>
+              <div class="col">
+                <p id="load-modal-title" class="text-center" style="font-size: 20px;margin-top: 15px;">等待裝置回應</p>
+              </div>
+              <div class="col">
+                <p id="load-timer" class="text-center" style="font-size: 12px;"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- alert Modal -->
+  <div class="modal fade" id="alert-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="alert-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm text-dark">
+      <div class="modal-content">
+        <!-- <div class="modal-header">
+          
+        </div> -->
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-sm-12">
+              <div id="alert-title" class="text-center">錯誤</div>
+              <hr>
+              <div id="alert-msg"></div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-center pt-2">
+            <!-- <button type="button" class="config-button mx-3" data-bs-dismiss="modal" aria-label="Close">否</button> -->
+            <button id="alert-close" type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">確定</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+</div>
+<script src="/treasure-radio/app/static/bootstrap-5.3.2/js/bootstrap.bundle.min.js"></script>
+<!-- <script src="/treasure-radio/app/static/bootstrap-slider-11.0.2/js/bootstrap-slider.js"></script> -->
+<script>
+let socketId = undefined;
+const socket = io('http://107.167.191.206:8082', { transports: ["websocket"] });
+socket.on("connect", () => {
+    console.log("連線成功:", socket.id);
+    socketId = socket.id;
+    $("#wifi-disconnect").css('visibility', 'hidden');
+});
+
+socket.on("disconnect", (reason) => {
+    console.log("已斷線", reason);
+    $("#wifi-disconnect").css('visibility', 'visible');
+});
+var alertModal = bootstrap.Modal.getOrCreateInstance(document.querySelector('#alert-modal'));
+var shutdownModal = bootstrap.Modal.getOrCreateInstance(document.querySelector('#shutdown-modal'));
+var loadModal = bootstrap.Modal.getOrCreateInstance(document.querySelector('#load-modal'));
+var articleTimer;
+
+function clearArticleTimer() {
+  clearInterval(articleTimer);
+  articleTimer = null;
+}
+
+function reset(){
+  $("#name-input").val('');
+  $("#age-input").val('');
+  $("#wish-input").val('');
+  $("#article-done").css('visibility', 'hidden');
+  $("#audio-done").css('visibility', 'hidden');
+  $("#all-done").css('visibility', 'hidden');
+  clearArticleTimer();
+}
+let backgroundTimer = setInterval(updateBackgroundTimer, 1000);
+let lastTouchTime = Date.now();
+const weekDay = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+function updateBackgroundTimer(){
+  // ---返回待機---
+  if($("#layer-mid").is(":hidden")){
+    // console.log(Date.now()-lastTouchTime);
+    if(Date.now()-lastTouchTime>=60000){
+      $("#layer-mid").show();
+      for(let i=0; i<8;i++){
+        let { current, next } = stepQueue.dequeue();
+        if(next=='intro-1') break;
+      }
+      console.log('stand by');
+      reset();
+      $('#layer-mid').stop().animate(
+        { top: `0px` }, 
+        {
+          duration: 800,
+          complete: ()=>{
+            $("#layer-mid").show();
+          }
+        }
+      );
+    }
+  }
+  // ---返回待機---
+  // ----check focus----
+  // if($("#name").is(":visible") && !$("#name-input").is(":focus")){
+  //   console.log('name focus');
+  //   $(`#name-input`).trigger('focus');
+  // }
+  // ----check focus----
+  // ---主畫面時間---
+  let topTime = new Date();
+  $(`#top-time`).text(`${topTime.getHours().toString().padStart(2, "0")}:${topTime.getMinutes().toString().padStart(2, "0")}`);
+  $(`#top-date`).text(`${topTime.getFullYear()}/${(topTime.getMonth()+1).toString().padStart(2, "0")}/${topTime.getDate().toString().padStart(2, "0")} ${weekDay[topTime.getDay()]}`);
+  $(`#bottom-datetime`).text(`${topTime.getFullYear()}/${(topTime.getMonth()+1).toString().padStart(2, "0")}/${topTime.getDate().toString().padStart(2, "0")} ${weekDay[topTime.getDay()]} ${topTime.getHours().toString().padStart(2, "0")}:${topTime.getMinutes().toString().padStart(2, "0")}`)
+  // ---主畫面時間---
+}
+
+function showAlert(data) {
+  $("#alert-msg").html(data['msg']);
+  alertModal.show();
+}
+function showLoading(data) {
+  $("#load-modal-title").html(data);
+  loadModal.show();
+}
+</script>
+<script>
+var articleSplitLen = 122;
+var articleBlock = 1;
+var articleBlockCount = 0;
+function setFinalArticle(article){
+  articleBlock = Math.ceil(article.length/articleSplitLen);
+  console.log(`len: ${article.length} block: ${articleBlock}`)
+  $("#final-article").empty();
+  for(let b=0; b<articleBlock; b++){
+    console.log(`b: ${b} block: ${article.slice(articleSplitLen*b, articleSplitLen*(b+1))}`);
+    $("#final-article").append(`<div id="final-article-part-${b}" style="display: none;">${article.slice(articleSplitLen*b, articleSplitLen*(b+1))}</div>`);
+  }
+  $("#final-article-part-0").show();
+}
+function startArticlePlay(){
+  articleTimer = setInterval(()=>{
+    console.log(`befor ${articleBlockCount} ${articleBlockCount%articleBlock}`);
+    $(`#final-article-part-${articleBlockCount%articleBlock}`).hide();
+    articleBlockCount++;
+    $(`#final-article-part-${articleBlockCount%articleBlock}`).show();
+    console.log(`after ${articleBlockCount} ${articleBlockCount%articleBlock}`);
+  }, 32000);
+}
+socket.on('article', (data) => {
+  // console.log(`len: ${data.article.length} block: ${data.article.length/122+1}`)
+  // for(let b=0; b<data.article.length/122+1; b++){
+  //   $("#final-article").empty();
+  //   $("#final-article").append(`<div>${data.article.slice(articleSplitLen*b, articleSplitLen*(b+1))}</div>`);
+  // }
+  // $("#final-article").text(data.article);
+  // let base = articleSplitLen*(articleBlockCount-1);
+  // let end = articleSplitLen*articleBlockCount;
+  // $("#final-article").text(data.article.slice(base, end));
+  // articleBlockCount = article.length>end ? articleBlockCount+1 : 1;
+  // articleTimer = setInterval((article)=>{
+  //   let base = articleSplitLen*(articleBlockCount-1);
+  //   let end = articleSplitLen*articleBlockCount;
+  //   $("#final-article").text(data.article.slice(base, end));
+  //   articleBlockCount = article.length>end ? articleBlockCount+1 : 1;
+  // }, 20000, data.article);
+  setFinalArticle(data.article);
+  $("#temp-article").text(data.article);
+  $("#final-marquee").css({ 'animation-duration': '0s' });
+  let distanceDiv = 'temp-marquee';
+  // if($("#loading").is(":visible")){
+  //   distanceDiv = 'temp-marquee';
+  // } else {
+  //   distanceDiv = 'final-marquee';
+  // }
+  const distance = $(`#${distanceDiv}`).outerWidth(true)*1.7+$(`#${distanceDiv}`).outerWidth(true);
+  console.log($(`#${distanceDiv}`).outerWidth(true));
+  console.log(distance / 75);
+  var durationSec = Math.max( (distance / 75), 20 );
+  $("#final-marquee").css({ 'animation-duration': `${durationSec}s` });
+
+  $("#top-marquee").css({ 'animation-duration': '0s' });
+  $("#top-article").text(data.article);
+  $("#top-marquee").css({ 'animation-duration': `${durationSec}s` });
+
+  // $("#wifi-disconnect").css('visibility', 'hidden');
+  console.log('article-done');
+  $("#article-done").css('visibility', 'visible');
+  console.log(`save: ${data.select}`);
+  localStorage.setItem('article', JSON.stringify(data));
+});
+socket.on('audio', (data) => {
+  console.log(`audio-done: ${data}`);
+  $("#audio-done").css('visibility', 'visible');
+  changeColor($(`#main-container`).css('--main-theme-color'), selectColor[selectSnow.findIndex((element) => element == data.select)]);
+  $('span[name="selectSnow"]').text(data.select);
+});
+</script>
+<script>
+function lerpColorRGB(a, b, t) {
+  // 轉成 RGB 數字
+  const colorA = a.match(/\w\w/g).map(x => parseInt(x, 16));
+  const colorB = b.match(/\w\w/g).map(x => parseInt(x, 16));
+
+  // 對 RGB 三個通道做 lerp
+  const result = colorA.map((start, i) =>
+    Math.round(start + (colorB[i] - start) * t)
+  );
+
+  // 轉回十六進位字串
+  return "#" + result.map(x =>
+    x.toString(16).padStart(2, "0")
+  ).join("");
+}
+function lerpColorHSL(a, b, t) {
+  function hexToHSL(hex) {
+    let r = parseInt(hex.substr(1, 2), 16) / 255;
+    let g = parseInt(hex.substr(3, 2), 16) / 255;
+    let b = parseInt(hex.substr(5, 2), 16) / 255;
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+    if (max === min) { h = s = 0; }
+    else {
+      let d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h *= 60;
+    }
+    return [h, s, l];
+  }
+  function HSLToHex(h, s, l) {
+    h /= 360;
+    let r, g, b;
+    if (s === 0) { r = g = b = l; }
+    else {
+      function hue2rgb(p, q, t) {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      }
+      let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      let p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    return "#" + [r, g, b].map(x =>
+      Math.round(x * 255).toString(16).padStart(2, "0")
+    ).join("");
+  }
+
+  const aHSL = hexToHSL(a);
+  const bHSL = hexToHSL(b);
+
+  // hue 插值（走最短弧）
+  let dh = bHSL[0] - aHSL[0];
+  if (Math.abs(dh) > 180) dh -= Math.sign(dh) * 360;
+  const h = aHSL[0] + dh * t;
+  const s = aHSL[1] + (bHSL[1] - aHSL[1]) * t;
+  const l = aHSL[2] + (bHSL[2] - aHSL[2]) * t;
+
+  return HSLToHex(h, s, l);
+}
+let isChangeColorAnimating  = false;
+function changeColor(startColor, endColor){
+  if (isChangeColorAnimating) return;
+  isChangeColorAnimating = true;
+  // console.log(`changeColor ${startColor} ${endColor}`);
+
+  const duration = 2500;
+  const mainColor = document.getElementById("main-container");
+  let startTime = null;
+  function animate(ts) {
+    if (!startTime) startTime = ts;
+    let t = (ts - startTime) / duration;
+    if (t > 1) t = 1;
+
+    mainColor.style.setProperty("--main-theme-color", lerpColorRGB(startColor, endColor, t));
+
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      setTimeout(() => {
+        isChangeColorAnimating = false;
+      }, 200);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+</script>
+<script>
+let currentSelectType = 0;
+let selectType = 4;
+const selectSnow = ['新聞快訊', '命理占卜', '詩集閱讀', '聽眾信箱'];
+const selectColor = ['#19FA9C', '#E632FB', '#F9FF1A', '#FF810D'];
+function changeSelectType(move){
+  if(currentSelectType+move<0 || currentSelectType+move>selectType-1) return;
+  console.log('changeSelectType');
+  $(`#select-type`).children('div')[currentSelectType].children[0].classList.remove("activate");
+  currentSelectType += move;
+  $(`#select-type`).children('div')[currentSelectType].children[0].classList.add("activate");
+}
+</script>
+<script>
+class StepQueue {
+  constructor() {
+    this.queue = ['intro-1', 'intro-2', 'name', 'age', 'wish', 'select', 'loading', 'final'];
+  }
+  dequeue() {
+    let current = this.queue.shift();
+    let next = this.queue[0];
+    this.queue.push(current);
+    console.log(next);
+    // return  { current, next };
+    $(`#${current}`).attr('hidden', true)
+    $(`#${next}`).removeAttr('hidden');
+    return  { current, next };
+    // if(next=='name'){
+    //   $(`#name-input`).trigger('focus');
+    // }
+    // else if(next=='age'){
+    //   $(`#age-input`).trigger('focus');
+    // }
+    // else if(next=='wish'){
+    //   $(`#wish-input`).trigger('focus');
+    //   // changeColor('#19FA9C', '#E632FB');
+    // }
+    // else if(next=='select'){
+    //   // changeColor('#19FA9C', '#E632FB');
+    // }
+    // else if(next=='loading'){
+    //   $('#top-bar').css('visibility', 'hidden');
+    //   setTimeout(() => {
+    //     changeColor('#19FA9C', '#E632FB');
+    //   }, 2000);
+    //   setTimeout(() => {
+    //     changeColor('#19FA9C', '#E632FB');
+    //   }, 2000);
+    // }
+  }
+}
+function showError(errorThrown, responeText='Error'){
+  $('#error-log').text(`${errorThrown}: ${responeText}`)
+  setTimeout(() => {
+    $("#error-log").text('');
+  }, 8000);
+}
+
+function changeColorAndNext(){
+  setTimeout(() => {
+    changeColor($(`#main-container`).css('--main-theme-color'), selectColor[currentSelectType]);
+    $('span[name="selectSnow"]').text(selectSnow[currentSelectType]);
+  }, 100);
+  setTimeout(() => {
+    let { current, next } = stepQueue.dequeue();
+    $('#top-bar').css('visibility', 'visible');
+    lastTouchTime = Date.now();
+  }, 3100);
+}
+function sendWitch(){
+  let data = {};
+  data['name'] = $("#name-input").val();
+  data['age'] = $("#age-input").val();
+  data['wish'] = $("#wish-input").val();
+  data['select'] = selectSnow[currentSelectType];
+  data['device'] = '主裝置';
+  console.log(data);
+
+  $.ajax({
+    type: "POST",
+    url: `http://127.0.0.1:8082/api/message/insert`,
+    dataType: "json",
+    contentType: "application/json",
+    data: JSON.stringify(data)
+  })
+  // .always(function(data) {
+  //   changeColorAndNext();
+  // })
+  .done(function(data) {
+    console.log(data);
+    $("#all-done").css('visibility', 'visible');
+    changeColorAndNext();
+    startArticlePlay();
+    // settingModal.hide();
+    // loadModal.hide();
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    console.log(errorThrown);
+    console.log(jqXHR.responseText);
+    if('responseText' in jqXHR){
+      showError(errorThrown, jqXHR.responseText);
+    } else {
+      showError(errorThrown);
+    }
+    setTimeout(() => {
+      changeColorAndNext();
+      startArticlePlay();
+    }, 8000);
+    // showAlert("無法與主機連線，請重新整理頁面");
+    // console.log(jqXHR.responseJSON);
+  });
+}
+let stepQueue = new StepQueue();
+$(document).on("keydown", function(event) {
+  if($('#layer-mid').is(":animated")) return;
+  
+  lastTouchTime = Date.now();
+  if($("#layer-mid").is(":visible")){
+    $('#layer-mid').animate(
+      { top: `-1000px` }, 
+      {
+        duration: 1100,
+        complete: ()=>{
+          $("#layer-mid").hide();
+        }
+      }
+    );
+  }
+  
+  if(event.key=="Enter"){
+    if($("#layer-mid").is(":visible")) return;
+    if($("#loading").is(":visible")) return;
+
+    if($("#name").is(":visible") && $("#name-input").val().replace(/[\s!@#$%^&*()]/g, '')==""){
+      console.log('name null');
+      $("#name-invalid").show();
+      return;
+    } else {
+      $("#name-invalid").hide();
+    }
+
+    if($("#age").is(":visible") && $("#age-input").val().replace(/[\s!@#$%^&*()]/g, '')==""){
+      console.log('age null');
+      $("#age-invalid").show();
+      return;
+    } else {
+      $("#age-invalid").hide();
+    }
+
+    if($("#wish").is(":visible") && $("#wish-input").val().replace(/[\s!@#$%^&*()]/g, '')==""){
+      console.log('wish null');
+      $("#wish-invalid").show();
+      return;
+    } else {
+      $("#wish-invalid").hide();
+    }
+
+    let { current, next } = stepQueue.dequeue();
+    if(next=='name'){
+      $(`#name-input`).trigger('focus');
+    }
+    else if(next=='age'){
+      $(`#age-input`).trigger('focus');
+    }
+    else if(next=='wish'){
+      $(`#wish-input`).trigger('focus');
+      // changeColor('#19FA9C', '#E632FB');
+    }
+    else if(next=='select'){
+      // changeColor('#19FA9C', '#E632FB');
+    }
+    else if(next=='loading'){
+      $('#top-bar').css('visibility', 'hidden');
+      sendWitch();
+      // setTimeout(() => {
+      //   changeColor($(`#main-container`).css('--main-caret-color'), selectColor[currentSelectType]);
+      //   $('span[name="selectSnow"]').text(selectSnow[currentSelectType]);
+      // }, 25000);
+      // setTimeout(() => {
+      //   let { current, next } = stepQueue.dequeue();
+      //   $('#top-bar').css('visibility', 'visible');
+      //   lastTouchTime = Date.now();
+      // }, 28000);
+    }
+    else if(next=='intro-1'){
+      reset();
+    }
+  }
+  if(event.key=="ArrowUp"){
+    changeSelectType(-1);
+  }
+  if(event.key=="ArrowDown"){
+    changeSelectType(1);
+  }
+  // console.log(event.key);
+  // $("#output").text("你按下了：「" + event.key + "」");
+  // $("#layer-mid").hide();
+  // $('#main-container').css('--main-theme-color', 'rgb(249,254,255)')
+});
+</script>
+<script>
+$("#shutdown").click(function() {
+  ctrlPower(ctrlPowerCalback.id, ctrlPowerCalback.cmdName);
+});
+function ctrlPower(id, cmdName){
+  shutdownModal.hide();
+  if(id=="8" || id=="9"){
+    if($("#base-id").val()<1 || $("#base-id").val()>140){
+      $("#base-id").addClass("is-invalid");
+      return;
+    }
+    $("#base-id").removeClass("is-invalid");
+    showLoading(cmdName);
+    $.ajax({
+      type: "GET",
+      url: `/api/power/${id}?base=${$("#base-id").val()}`,
+      dataType: "json",
+      contentType: "application/json",
+    })
+    .done(function(data) {
+      console.log(data);
+    })
+    .always(function() {
+      loadModal.hide();
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+      showAlert(jqXHR.responseJSON);
+    });
+  }
+  else if(id=="10"){
+    if($("#base-id").val()<1 || $("#base-id").val()>140){
+      $("#base-id").addClass("is-invalid");
+      return;
+    }
+    $("#base-id").removeClass("is-invalid");
+    showLoading(cmdName);
+    $.ajax({
+      type: "GET",
+      url: `/api/stepper/adjustment/power/${$("#base-id").val()}`,
+      dataType: "json",
+      contentType: "application/json",
+    })
+    .done(function(data) {
+      console.log(data);
+    })
+    .always(function() {
+      loadModal.hide();
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+      showAlert(jqXHR.responseJSON);
+    });
+  }
+  else{
+    showLoading(cmdName);
+    $.ajax({
+      type: "GET",
+      url: `/api/power/${id}`,
+      dataType: "json",
+      contentType: "application/json",
+    })
+    .done(function(data) {
+      console.log(data);
+    })
+    .always(function() {
+      loadModal.hide();
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+      showAlert(jqXHR.responseJSON);
+    });
+  }
+}
+$("#power .btn").click(function() {
+  let id = $(this).data("power");
+  let cmdName = $(this).attr('aria-label');
+  console.log(id);
+  console.log(cmdName);
+  // ctrlPower(id, cmdName);
+  ctrlPowerCalback["id"] = id;
+  ctrlPowerCalback["cmdName"] = cmdName;
+  $("#conferm-title").html(`是否執行${cmdName}`);
+  shutdownModal.show();
+});
+function ctrlLed(id, cmdName){
+  showLoading(cmdName);
+  $.ajax({
+    type: "GET",
+    url: `/api/led/${id}`,
+    dataType: "json",
+    contentType: "application/json",
+  })
+  .done(function(data) {
+    console.log(data);
+  })
+  .always(function() {
+    loadModal.hide();
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    showAlert(jqXHR.responseJSON);
+  });
+}
+$("#led .btn").click(function() {
+  let id = $(this).data("led");
+  let cmdName = $(this).attr('aria-label');
+  console.log(id);
+  console.log(cmdName);
+  ctrlLed(id, cmdName);
+});
+// CH
+function ctrlpowerCH(id, ch, mode, cmdName){
+  showLoading(cmdName);
+  $.ajax({
+    type: "GET",
+    url: `/api/power/ch/${id}?ch=${ch}&mode=${mode}`,
+    dataType: "json",
+    contentType: "application/json",
+  })
+  .done(function(data) {
+    console.log(data);
+  })
+  .always(function() {
+    loadModal.hide();
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    showAlert(jqXHR.responseJSON);
+  });
+}
+$(".pwoer-ch-list .btn").click(function() {
+  let mode = $(this).data('mode');
+  let ch = $(this).parent().parent().data('ch');
+  let id = $(this).parent().parent().parent().data('id');
+  let cmdName = $(this).attr('aria-label');
+  // console.log(mode);
+  // console.log(ch);
+  // console.log(id);
+  ctrlpowerCH(id, ch, mode, cmdName);
+});
+function setThemeColor(article, select){
+  const mainColor = document.getElementById("main-container");
+  mainColor.style.setProperty("--main-theme-color", selectColor[selectSnow.findIndex((element) => element == select)]);
+}
+function setMarqueeAnime(article, select){
+  $("#top-article").text(article);
+  $("#top-temp-article").text(article);
+  const distance = $(`#top-temp-marquee`).outerWidth(true)*1.7+$(`#top-temp-marquee`).outerWidth(true);
+  console.log($(`#top-temp-marquee`).outerWidth(true));
+  console.log(distance / 75);
+  var durationSec = Math.max( (distance / 75), 20 );
+  $("#top-marquee").css({ 'animation-duration': `${durationSec}s` });
+
+  $('span[name="selectSnow"]').text(select);
+}
+function getLastArticle(){
+  $.ajax({
+    type: "GET",
+    url: `/api/message/last`,
+    dataType: "json",
+    contentType: "application/json",
+  })
+  .done(function(data) {
+    console.log(data);
+    setMarqueeAnime(data.msg.article, data.msg.select);
+    setFinalArticle(data.msg.article);
+    setThemeColor(data.msg.article, data.msg.select);
+  })
+  .fail(function(jqXHR, textStatus, errorThrown) {
+    console.log(errorThrown);
+    console.log(jqXHR.responseText);
+    console.log('fallback local data');
+    const data = JSON.parse(localStorage.getItem('article'));
+    setMarqueeAnime(data.article, data.select);
+    setFinalArticle(data.article);
+    setThemeColor(data.msg.article, data.msg.select);
+  });
+}
+</script>
+<script>
+$(window).resize(function() {
+  SetupWindow();
+});
+
+$(window).ready(function() {
+  SetupWindow();
+  
+  if(localStorage.getItem('article')==null){
+    console.log('init localStorage');
+    localStorage.setItem('article', JSON.stringify({'article': '......', 'select': '新聞快訊'}));
+  }
+
+  getLastArticle();
+  
+});
+</script>
+</body>
+</html>

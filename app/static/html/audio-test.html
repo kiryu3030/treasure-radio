@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <body>
+    <button id="play">播放</button>
+    <button id="stop">停止</button>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+      const socket = io("http://127.0.0.1:8082", { transports: ["websocket"] });
+
+      document.getElementById("play").onclick = () => {
+        socket.emit("play_audio", { path: "2025-08-14\\2025-08-14 12-17-52.431.wav" }); // 換成你的 mp3 路徑
+      };
+      document.getElementById("stop").onclick = () => {
+        socket.emit("stop_audio");
+      };
+
+      socket.on("played", (d) => console.log("played", d));
+      socket.on("stopped", () => console.log("stopped"));
+      socket.on("error", (e) => console.error("server error:", e));
+    </script>
+  </body>
+</html>

@@ -13,7 +13,7 @@ const logging = logger(__filename);
 // WebSocket.init(io);
 // WebSocket.mountEvent();
 
-const PORT = 8082;
+const PORT = 8083;
 app.listen(PORT, () => {
   logging.info(`WebServer is running on port ${PORT}`)
 })

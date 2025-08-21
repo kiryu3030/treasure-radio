@@ -17,7 +17,7 @@ const WebSocket = require('./app/routes/websocket/websocket-event.js');
 WebSocket.init(io);
 WebSocket.mountEvent();
 
-const PORT = 8081;
+const PORT = 8082;
 mainApp.listen(PORT, () => {
   logging.info(`WebServer is running on port ${PORT}`)
 })

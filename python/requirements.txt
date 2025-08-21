@@ -1,1 +1,6 @@
-python-socketio[asyncio_client]
+python-socketio[client]
+sounddevice
+numpy
+pydub
+requests
+soundfile

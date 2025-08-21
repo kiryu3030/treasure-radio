@@ -27,4 +27,16 @@ htmlRoute.get('/led', (req, res) => {
   res.sendFile(path.join(HTML_DIR, 'led.html'));
 });
 
+htmlRoute.get('/small', (req, res) => {
+  res.sendFile(path.join(HTML_DIR, 'small.html'));
+});
+
+htmlRoute.get('/large', (req, res) => {
+  res.sendFile(path.join(HTML_DIR, 'large.html'));
+});
+
+htmlRoute.get('/audio-test', (req, res) => {
+  res.sendFile(path.join(HTML_DIR, 'audio-test.html'));
+});
+
 module.exports = htmlRoute;
