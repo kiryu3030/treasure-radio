@@ -1,0 +1,14 @@
+[Unit]
+Description=webserver service
+
+[Service]
+Type=simple
+ExecStart=/home/leon/treasure-radio/webserver.sh
+Restart=on-failure
+RestartSec=10
+User=leon
+Group=leon
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target
