@@ -3,7 +3,7 @@ Description=Treasure audio service
 
 [Service]
 Type=simple
-ExecStart=/var/www/html/treasure-radio/audio.sh
+ExecStart=/var/www/html/treasure-radio/python/audio.sh
 Restart=on-failure
 RestartSec=10
 User=okome
