@@ -190,13 +190,15 @@ signal.signal(signal.SIGINT, ExitSignal)
 
 # if __name__ == "__main__":
 # 換成你的 Socket.IO 伺服器位址
-SERVER_URL = "ws://127.0.0.1:8082"
+SERVER_URL = "ws://107.167.191.206:8082"
 # 若需要附帶自定 headers / token，可用：
 # sio.connect(SERVER_URL, headers={"Authorization": "Bearer xxx"})
 # sio.connect(SERVER_URL, transports=['websocket'])
 try:
     lastAudio = findLastFile('.')
-    player.play_wav_from_url(lastAudio, 'tees1.wav', sio=sio)
+    if lastAudio:
+      logging.info("Find last local audio")
+      player.play_wav_from_url(lastAudio, 'test1.wav', sio=sio)
     time.sleep(5)
     sio.connect(SERVER_URL, transports=['websocket'])
     # sio.wait()  # 阻塞，直到中斷

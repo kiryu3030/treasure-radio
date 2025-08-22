@@ -17,7 +17,7 @@ def findLastFile(base_dir='.', ignore = ['__pycache__', 'logs']):
 
   if not folders:
       print("沒有資料夾")
-      exit()
+      return None
 
   latest_folder_name = folders[0][0]
   latest_folder_path = os.path.join(base_dir, latest_folder_name)
