@@ -16,6 +16,8 @@ import socketio
 
 from find_file import findLastFile
 
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 class PlaybackManager:
     def __init__(self):
         self._thread: Optional[threading.Thread] = None
@@ -195,7 +197,8 @@ SERVER_URL = "ws://107.167.191.206:8082"
 # sio.connect(SERVER_URL, headers={"Authorization": "Bearer xxx"})
 # sio.connect(SERVER_URL, transports=['websocket'])
 try:
-    lastAudio = findLastFile('.')
+    logging.info(f'CURRENT_DIR: {CURRENT_DIR}')
+    lastAudio = findLastFile(CURRENT_DIR)
     if lastAudio:
       logging.info("Find last local audio")
       player.play_wav_from_url(lastAudio, 'test1.wav', sio=sio)
