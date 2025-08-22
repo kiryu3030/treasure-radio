@@ -203,7 +203,13 @@ try:
       logging.info("Find last local audio")
       player.play_wav_from_url(lastAudio, 'test1.wav', sio=sio)
     time.sleep(5)
-    sio.connect(SERVER_URL, transports=['websocket'])
+    while not sio.connected:
+      try:
+        sio.connect(SERVER_URL, transports=['websocket'])
+      except Exception as e:
+        logging.error(f"{e}")
+        time.sleep(5)
+    
     # sio.wait()  # 阻塞，直到中斷
     while True:
         time.sleep(10)
