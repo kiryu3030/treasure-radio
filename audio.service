@@ -1,0 +1,14 @@
+[Unit]
+Description=Treasure audio service
+
+[Service]
+Type=simple
+ExecStart=/var/www/html/treasure-radio/audio.sh
+Restart=on-failure
+RestartSec=10
+User=okome
+Group=okome
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target
