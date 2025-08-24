@@ -118,23 +118,26 @@ class PlaybackManager:
                   if save_path=='':
                       if OS_NAME == "Windows":
                           win_path = src.split('\\')[-1]
-                          win = r"D:\ZIJI\jsProject\treasure-radio\python"
+                          win = r"D:\\ZIJI\\jsProject\\treasure-radio\\python"
                           print(f"Windows os {win_path}")
-                          print(f"Windows os final {os.path.join(win, win_path.split('_')[0], win_path)}")
-                          osc.send_message("/audio_path", os.path.join(win, win_path.split('_')[0], win_path))
+                          # print(f"Windows os final {os.path.join(win, win_path.split('_')[0], win_path)}")
+                          # osc.send_message("/audio_path", os.path.join(win, win_path.split('_')[0], win_path))
+                          print("Windows os final"+ win+r'\\'+win_path.split('_')[0]+r'\\'+win_path)
+                          osc.send_message("/audio_path", "open "+win+r'\\'+win_path.split('_')[0]+r'\\'+win_path)
                       else:
                           print(f"Mac os {src.split('/')[-1]}")
-                          print(f"Mac os final {os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', src.split('/')[-1].split('_')[0], src.split('/')[-1])}")
-                          osc.send_message("/audio_path", os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', src.split('/')[-1].split('_')[0], src.split('/')[-1]))
+                          print(f"Mac os final: open {os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', src.split('/')[-1].split('_')[0], src.split('/')[-1])}")
+                          osc.send_message("/audio_path", "open "+os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', src.split('/')[-1].split('_')[0], src.split('/')[-1]))
                   else:
                       print(f"Socket {save_path}")
                       if OS_NAME == "Windows":
-                        win = r"D:\ZIJI\jsProject\treasure-radio\python"
-                        print(f"Socket Windows os final {os.path.join(win, save_path)}")
-                        osc.send_message("/audio_path", os.path.join(win, save_path))
+                        win_path = save_path.split('/')[-1]
+                        win = r"D:\\ZIJI\\jsProject\\treasure-radio\\python"
+                        print(f"Socket Windows os final"+win+r'\\'+save_path.split('/')[0]+r'\\'+win_path)
+                        osc.send_message("/audio_path", "open "+win+r'\\'+save_path.split('/')[0]+r'\\'+win_path)
                       else:
-                        print(f"Socket Mac os final {os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', save_path)}")
-                        osc.send_message("/audio_path", os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', save_path))
+                        print(f"Socket Mac os final: 'open '{os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', save_path)}")
+                        osc.send_message("/audio_path", "open "+os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', save_path))
 
               except Exception as e:
                   logging.error(f"OSC error: {e}")
