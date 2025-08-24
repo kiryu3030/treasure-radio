@@ -99,7 +99,7 @@ class PlaybackManager:
               self.stop()  # 這裡 join 的只會是「舊的」self._thread，不會是現在這個 _worker
 
               # ---- 4) 登記本次播放執行緒，並開始播放 ----
-              self._name = src.split(' ')[-1]
+              self._name = src.split('_')[-1]
               with self._lock:
                   self._thread = threading.current_thread()
                   vol = self._volume
@@ -161,7 +161,7 @@ def on_play_audio(data):
     url = f'http://107.167.191.206:8082/treasure-radio/app/static/audio/{path}'
     print(f"[client] play_audio: {url}")
     logging.info(f"[client] play_audio: {url}")
-    name = url.split(' ')[-1]
+    name = url.split('_')[-1]
     logging.info(f'reserve:{name} nowplay:{player.name}')
     if name==player.name and player.is_playing:
         print('reserve same file pass')

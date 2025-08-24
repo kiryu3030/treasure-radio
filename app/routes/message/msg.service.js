@@ -1,7 +1,7 @@
 const express = require('express');
 const OpenAI = require('openai');
 const logger = require('../../config/log.config');
-const { nowTimeFormat, utcTimeFormat } = require('../../utilities/time-format.js');
+const { nowTimeFormat, utcTimeFormat, nowAudioFileTimeFormat } = require('../../utilities/time-format.js');
 const response = require('../../utilities/response.js');
 const requestCode = require('../../utilities/response-code.js');
 const AppException = require('../../utilities/app-exception.js');
@@ -144,7 +144,7 @@ const messageService = {
           1.01, 1.0, 1.0,
           YatingClient.ENCODING_LINEAR16,
           YatingClient.SAMPLE_RATE_16K,
-          `${nowTimeFormat()}`.replace(/[:]/g, '-'),
+          `${nowAudioFileTimeFormat()}`.replace(/[:]/g, '-'),
           { timeoutMs: 70_000 } // ← axios timeout 設 60 秒
         );
         logging.info(`${device}:Audio done: ${outPath}`);

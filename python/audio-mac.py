@@ -103,7 +103,7 @@ class PlaybackManager:
               self.stop()  # 這裡 join 的只會是「舊的」self._thread，不會是現在這個 _worker
 
               # ---- 4) 登記本次播放執行緒，並開始播放 ----
-              self._name = src.split(' ')[-1]
+              self._name = src.split('_')[-1]
               with self._lock:
                   self._thread = threading.current_thread()
                   vol = self._volume
@@ -118,16 +118,24 @@ class PlaybackManager:
                   if save_path=='':
                       if OS_NAME == "Windows":
                           win_path = src.split('\\')[-1]
+                          win = r"D:\ZIJI\jsProject\treasure-radio\python"
                           print(f"Windows os {win_path}")
-                          print(f"Windows os final {os.path.join(win_path.split(' ')[0], win_path)}")
-                          osc.send_message("/audio_path", os.path.join(win_path.split(' ')[0], win_path))
+                          print(f"Windows os final {os.path.join(win, win_path.split('_')[0], win_path)}")
+                          osc.send_message("/audio_path", os.path.join(win, win_path.split('_')[0], win_path))
                       else:
                           print(f"Mac os {src.split('/')[-1]}")
-                          print(f"Mac os final {os.path.join(src.split('/')[-1].split(' ')[0], src.split('/')[-1])}")
-                          osc.send_message("/audio_path", os.path.join(src.split('/')[-1].split(' ')[0], src.split('/')[-1]))
+                          print(f"Mac os final {os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', src.split('/')[-1].split('_')[0], src.split('/')[-1])}")
+                          osc.send_message("/audio_path", os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', src.split('/')[-1].split('_')[0], src.split('/')[-1]))
                   else:
                       print(f"Socket {save_path}")
-                      osc.send_message("/audio_path", save_path)
+                      if OS_NAME == "Windows":
+                        win = r"D:\ZIJI\jsProject\treasure-radio\python"
+                        print(f"Socket Windows os final {os.path.join(win, save_path)}")
+                        osc.send_message("/audio_path", os.path.join(win, save_path))
+                      else:
+                        print(f"Socket Mac os final {os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', save_path)}")
+                        osc.send_message("/audio_path", os.path.join('/Users/okome/Documents/GitHub/treasure-radio/python', save_path))
+
               except Exception as e:
                   logging.error(f"OSC error: {e}")
               
@@ -186,7 +194,7 @@ def on_play_audio(data):
     url = f'http://107.167.191.206:8082/treasure-radio/app/static/audio/{path}'
     print(f"[client] play_audio: {url}")
     logging.info(f"[client] play_audio: {url}")
-    name = url.split(' ')[-1]
+    name = url.split('_')[-1]
     logging.info(f'reserve:{name} nowplay:{player.name}')
     if name==player.name and player.is_playing:
         print('reserve same file pass')
