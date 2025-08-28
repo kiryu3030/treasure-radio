@@ -52,7 +52,7 @@ def LightShutdown():
   except Exception as e:
     logging.info(e)
   
-  subprocess.Popen('/Users/okome/Documents/GitHub/treasure-radio/shutdown.sh', shell=True)
+  subprocess.Popen('/Users/okome/Documents/GitHub/treasure-radio/python/shutdown.sh', shell=True)
 
 showScheduler = BackgroundScheduler()
 now = datetime.now()
