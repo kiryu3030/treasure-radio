@@ -18,6 +18,26 @@ from find_file import findLastFile
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# 列出所有裝置
+devices = sd.query_devices()
+print("=== 裝置清單 ===")
+for idx, d in enumerate(devices):
+    logging.info(f"[{idx}] {d['name']} (in:{d['max_input_channels']}, out:{d['max_output_channels']})")
+
+# 找到 "bcm2835 Headphones"
+target_name = "bcm2835 Headphones"
+target_id = None
+for idx, d in enumerate(devices):
+    if target_name in d['name']:
+        target_id = idx
+        break
+
+if target_id is not None:
+    sd.default.device = (None, target_id)  # 設定為輸出裝置
+    logging.info(f"已將輸出裝置設定為 {target_name} (ID {target_id})")
+else:
+    logging.info(f"找不到裝置: {target_name}")
+
 class PlaybackManager:
     def __init__(self):
         self._thread: Optional[threading.Thread] = None
