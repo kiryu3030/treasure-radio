@@ -128,8 +128,10 @@ class PlaybackManager:
                   data = data * vol
 
               if self._stop_flag.is_set():
+                  logging.info(f"[client] stop_flag is set return")
                   return
 
+              logging.info(f"[client] stsrt play: {self._name}")
               sd.play(data, sr, loop=True)
               sd.wait()
 
