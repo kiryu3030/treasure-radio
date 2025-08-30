@@ -252,7 +252,7 @@ try:
     logging.info(f'CURRENT_DIR: {CURRENT_DIR}')
     lastAudio = findLastFile(CURRENT_DIR)
     if lastAudio:
-      print("Find last local audio")
+    #   print("Find last local audio")
       logging.info("Find last local audio")
       player.play_wav_from_url(lastAudio, 'test1.wav', sio=sio)
     time.sleep(5)
