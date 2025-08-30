@@ -26,6 +26,7 @@ for idx, d in enumerate(devices):
 
 # 找到 "bcm2835 Headphones"
 target_name = "bcm2835 Headphones"
+# target_name = "Headphones"
 target_id = None
 for idx, d in enumerate(devices):
     if target_name in d['name']:
@@ -40,127 +41,156 @@ else:
 
 class PlaybackManager:
     def __init__(self):
-        self._thread: Optional[threading.Thread] = None
-        self._stop_flag = threading.Event()
+        self._thread: threading.Thread | None = None
         self._lock = threading.Lock()
-        self._volume = 1.0  # 0.0 ~ 1.0
+        self._stop_evt = threading.Event()
+        self._volume = 1.0
         self._name = ''
+        self._device_id = None      # 若你外面已選到 bcm2835，可不設或設成那個 id
+        self._stream = None         # 只在播放執行緒使用
 
     @property
-    def name(self)->str:
+    def name(self) -> str:
         return self._name
+
+    @property
+    def is_playing(self) -> bool:
+        with self._lock:
+            t = self._thread
+        return bool(t and t.is_alive())
 
     def set_volume(self, v: float):
         v = max(0.0, min(1.0, float(v)))
         with self._lock:
             self._volume = v
 
-    @property
-    def is_playing(self) -> bool:
-        t = None
-        with self._lock:
-            t = self._thread
-        return t is not None and t.is_alive()
+    def set_output_device(self, device_id: int):
+        self._device_id = device_id
+    #     """在不播放時設定下次播放要用的輸出裝置。"""
+    #     # with self._lock:
+    #     #     if self._thread and self._thread.is_alive():
+    #     #         raise RuntimeError("播放中不可切換裝置，請先 stop()")
+    #     #     self._device_id = device_id
 
     def stop(self):
-        """安全地中止播放執行緒並重置狀態"""
-        # 先設定旗標與停止音效裝置
+        """只送出停止訊號並等待播放執行緒自己關閉 PortAudio。"""
         with self._lock:
-            self._stop_flag.set()
-            try:
-                sd.stop()
-            except Exception:
-                pass
-            t = self._thread  # 把參考拿出來，避免在持鎖 join
-
-        # 在不持有 lock 的情況下 join，避免死鎖
+            self._stop_evt.set()
+            t = self._thread
         if t and t.is_alive():
             t.join(timeout=2.0)
-
-        # 重置狀態
         with self._lock:
-            self._name = ''
             self._thread = None
-            self._stop_flag.clear()
+            self._stop_evt.clear()
+            self._name = ''
 
-    def play_wav_from_url(self, src: str, save_path: str, sio: socketio.Client):
-      """
-      下載 WAV 檔 -> 存檔 -> 停止舊播放 -> 播放新檔
-      注意：在下載階段不會中止目前播放；成功存檔後才 stop。
-      """
-      # 開一個「下載 + 播放」工作，但在下載完成前 **不** 登記成 self._thread
-      def _worker():
-          try:
-              # ---- 1) 下載或讀取 WAV 到記憶體 ----
-              if src.startswith(("http://", "https://")):
-                  resp = requests.get(src, timeout=30)
-                  resp.raise_for_status()
-                  buf = io.BytesIO(resp.content)
-                  buf.seek(0)
-                  data, sr = sf.read(buf, dtype='float32', always_2d=True)
-              else:
-                  # 本機路徑
-                  data, sr = sf.read(src, dtype='float32', always_2d=True)
+    def _play_array(self, data, sr, sio, src, save_path, loop=True):
+        """在獨立執行緒內，以 OutputStream 播放 data，支援 loop。"""
+        try:
+            with self._lock:
+                vol = self._volume
+                dev = self._device_id
 
-              # ---- 2) 存檔（未停播前就先寫好檔案）----
-              if src.startswith(("http://", "https://")):
+            if vol != 1.0:
+                data = data * vol
+
+            i = 0
+            nframes = len(data)
+
+            def cb(outdata, frames, time_info, status):
+                nonlocal i
+                if status:
+                    logging.warning(f"[sd] status: {status}")
+                if self._stop_evt.is_set():
+                    raise sd.CallbackStop
+
+                end = i + frames
+                if end >= nframes:
+                    # 如果啟用 loop，就回到頭繼續播
+                    if loop:
+                        part1 = data[i:nframes]
+                        part2 = data[:frames - len(part1)]
+                        outdata[:len(part1)] = part1
+                        outdata[len(part1):] = part2
+                        i = len(part2)
+                    else:
+                        rem = nframes - i
+                        if rem > 0:
+                            outdata[:rem] = data[i:nframes]
+                            outdata[rem:] = 0
+                        raise sd.CallbackStop
+                else:
+                    outdata[:] = data[i:end]
+                    i = end
+
+            with sd.OutputStream(
+                samplerate=sr,
+                channels=data.shape[1],
+                dtype='float32',
+                device=dev,
+                callback=cb,
+            ) as self._stream:
+                while not self._stop_evt.is_set():
+                    sd.sleep(50)
+
+            if not self._stop_evt.is_set() and not loop:
                 try:
-                    dirpath = os.path.dirname(save_path)
-                    if dirpath:
-                        os.makedirs(dirpath, exist_ok=True)
-                    sf.write(save_path, data, sr)
-                    print(f"[client] 已存檔：{save_path}")
-                    logging.info(f"[client] 已存檔：{save_path}")
-                except Exception as e:
-                    print(e)
-                    logging.error(f"[client] 存檔失敗：{e}")
+                    sio.emit("client_playback_done", {"src": src, "saved": save_path})
+                except Exception:
+                    pass
+        except Exception:
+            pass
 
-              # ---- 3) 這時候才停止舊播放 ----
-              self.stop()  # 這裡 join 的只會是「舊的」self._thread，不會是現在這個 _worker
+        finally:
+            with self._lock:
+                self._stream = None
+                if self._thread is threading.current_thread():
+                    self._thread = None
+                self._stop_evt.clear()
 
-              # ---- 4) 登記本次播放執行緒，並開始播放 ----
-              self._name = src.split('_')[-1]
-              with self._lock:
-                  self._thread = threading.current_thread()
-                  vol = self._volume
+    def play_wav_from_url(self, src: str, save_path: str, sio):
+        """
+        下載 WAV -> 存檔（若是 URL）-> 停舊播 -> 以 OutputStream 播新檔
+        """
+        # 先下載/讀取到記憶體（不動到 PortAudio）
+        if src.startswith(("http://", "https://")):
+            resp = requests.get(src, timeout=30)
+            resp.raise_for_status()
+            buf = io.BytesIO(resp.content); buf.seek(0)
+            data, sr = sf.read(buf, dtype='float32', always_2d=True)
 
-              if vol != 1.0:
-                  data = data * vol
+            # 存檔
+            try:
+                os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
+                sf.write(save_path, data, sr)
+                logging.info(f"[client] 已存檔：{save_path}")
+            except Exception as e:
+                logging.error(f"[client] 存檔失敗：{e}")
+        else:
+            data, sr = sf.read(src, dtype='float32', always_2d=True)
 
-              if self._stop_flag.is_set():
-                  logging.info(f"[client] stop_flag is set return")
-                  return
+        # 序列化：先把上一段完整停掉（讓上一個 stream 自己關閉）
+        self.stop()
 
-              logging.info(f"[client] stsrt play: {self._name}")
-              sd.play(data, sr, loop=True)
-              sd.wait()
+        # 清除停止旗標，準備新播放
+        with self._lock:
+            self._stop_evt.clear()
 
-              if not self._stop_flag.is_set():
-                  try:
-                      sio.emit("client_playback_done", {"src": src, "saved": save_path})
-                  except Exception:
-                      pass
-
-          except Exception as e:
-              print(e)
-              logging.error(f"[Player] Error: {e}")
-              try:
-                  sio.emit("client_error", {"msg": str(e)})
-              except Exception:
-                  pass
-          finally:
-              with self._lock:
-                  # 若目前 thread 就是登記的，清掉；避免把其他新任務的 thread 清掉
-                  if self._thread is threading.current_thread():
-                      self._thread = None
-                  self._stop_flag.clear()
-
-      t = threading.Thread(target=_worker, daemon=True)
-      t.start()
+        # 開新播放執行緒
+        self._name = src.split('_')[-1]
+        t = threading.Thread(
+            target=self._play_array,
+            args=(data, sr, sio, src, save_path),
+            daemon=True
+        )
+        with self._lock:
+            self._thread = t
+        t.start()
 
 # ===== Socket.IO 用戶端 =====================================================
 sio = socketio.Client(logger=True, engineio_logger=False, reconnection=True)
 player = PlaybackManager()
+player.set_output_device(target_id)
 
 @sio.event
 def connect():
@@ -222,6 +252,7 @@ try:
     logging.info(f'CURRENT_DIR: {CURRENT_DIR}')
     lastAudio = findLastFile(CURRENT_DIR)
     if lastAudio:
+      print("Find last local audio")
       logging.info("Find last local audio")
       player.play_wav_from_url(lastAudio, 'test1.wav', sio=sio)
     time.sleep(5)
