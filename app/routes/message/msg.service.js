@@ -18,7 +18,7 @@ const openai = new OpenAI({
 
 const yatingClient = new YatingClient('https://tts.api.yating.tw/v2/speeches/short', config.yating);
 
-let articleLenMin = 120;
+let articleLenMin = 200;
 let articleLenMax = 160;
 const selectSnow = ['新聞快訊', '命理占卜', '詩集閱讀', '聽眾信箱'];
 
@@ -96,25 +96,25 @@ const messageService = {
         switch (config.defaultSelect) {
           case '新聞快訊':
             systemRole = "你是一位新聞主播";
-            userRole = `${wishs}目前有這${msgs.length+1}段話，和${msgs.length+1}個角色分別叫${names}，這些角色名稱可以用相近的暱稱代替，請你以新聞主播的觀點幫我寫一段大約${articleLenMin}字的故事，如果有意義不明或看不懂的句子可以忽略，用繁體中文回答，回傳給我的時候只要故事內容就好且不要出現引號`
+            userRole = `${wishs}目前有這${msgs.length+1}段話，和${msgs.length+1}個角色分別叫${names}，這些角色名稱可以用相近的暱稱代替，請你以新聞主播的觀點幫我寫一段${articleLenMin}字的故事，如果有意義不明或看不懂的句子可以忽略，用繁體中文回答，回傳給我的時候只要故事內容就好且不要出現引號`
             break;
           case '命理占卜':
             systemRole = "你是一位對星座、塔羅很擅長的占卜師";
-            userRole = `${wishs}目前有這${msgs.length+1}段話，和${msgs.length+1}個角色分別叫${names}，這些角色名稱可以用相近的暱稱代替，請你以命理占卜的觀點幫我寫一段大約${articleLenMin}字的故事，如果有意義不明或看不懂的句子可以忽略，用繁體中文回答，回傳給我的時候只要故事內容就好且不要出現引號`
+            userRole = `${wishs}目前有這${msgs.length+1}段話，和${msgs.length+1}個角色分別叫${names}，這些角色名稱可以用相近的暱稱代替，請你以命理占卜的觀點幫我寫一段${articleLenMin}字的故事，如果有意義不明或看不懂的句子可以忽略，用繁體中文回答，回傳給我的時候只要故事內容就好且不要出現引號`
             break;
           case '詩集閱讀':
             systemRole = "你是一位喜歡文學、詩歌、美學的作家";
-            userRole = `${wishs}目前有這${msgs.length+1}段話，和${msgs.length+1}個角色分別叫${names}，這些角色名稱可以用相近的暱稱代替，請你以作家的觀點幫我寫一段大約${articleLenMin}字的故事，如果有意義不明或看不懂的句子可以忽略，用繁體中文回答，回傳給我的時候只要故事內容就好且不要出現引號`
+            userRole = `${wishs}目前有這${msgs.length+1}段話，和${msgs.length+1}個角色分別叫${names}，這些角色名稱可以用相近的暱稱代替，請你以作家的觀點幫我寫一段${articleLenMin}字的故事，如果有意義不明或看不懂的句子可以忽略，用繁體中文回答，回傳給我的時候只要故事內容就好且不要出現引號`
             break;
           case '聽眾信箱':
             systemRole = "你是一位喜歡分享和傾聽別人故事的廣播主持人";
-            userRole = `${wishs}目前有這${msgs.length+1}段話，和${msgs.length+1}個角色分別叫${names}，這些角色名稱可以用相近的暱稱代替，請你以廣播主持人的觀點幫我寫一段大約${articleLenMin}字的故事，如果有意義不明或看不懂的句子可以忽略，用繁體中文回答，回傳給我的時候只要故事內容就好且不要出現引號`
+            userRole = `${wishs}目前有這${msgs.length+1}段話，和${msgs.length+1}個角色分別叫${names}，這些角色名稱可以用相近的暱稱代替，請你以廣播主持人的觀點幫我寫一段${articleLenMin}字的故事，如果有意義不明或看不懂的句子可以忽略，用繁體中文回答，回傳給我的時候只要故事內容就好且不要出現引號`
             break;
           default:
             systemRole = "你是一位新聞主播";
-            userRole = `${wishs}目前有這${msgs.length+1}段話，和${msgs.length+1}個角色分別叫${names}，這些角色名稱可以用相近的暱稱代替，請你以新聞主播的觀點幫我寫一段大約${articleLenMin}字的故事，如果有意義不明或看不懂的句子可以忽略，用繁體中文回答，回傳給我的時候只要故事內容就好且不要出現引號`
+            userRole = `${wishs}目前有這${msgs.length+1}段話，和${msgs.length+1}個角色分別叫${names}，這些角色名稱可以用相近的暱稱代替，請你以新聞主播的觀點幫我寫一段${articleLenMin}字的故事，如果有意義不明或看不懂的句子可以忽略，用繁體中文回答，回傳給我的時候只要故事內容就好且不要出現引號`
         }
-        console.log(userRole);
+        logging.info(userRole);
         const completion = await openai.chat.completions.create({
           model: "gpt-4o",
           messages: [
