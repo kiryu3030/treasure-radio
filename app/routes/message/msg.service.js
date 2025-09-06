@@ -9,6 +9,8 @@ const config = require('../../config/config.js');
 const YatingClient = require('../tts/yating-client.js');
 const WebSocket = require('../websocket/websocket-event.js');
 const Message = require('./msg.model.js');
+const path = require('path');
+const { execFile } = require('child_process');
 
 const logging = logger(__filename);
 
@@ -39,6 +41,11 @@ function shuffle(array){
   }
 // return[execute] the array when it completes::don't really need the console.log but helps to check
   console.log(array);
+}
+
+function isSafeHost(host) {
+  // hostname: a-z, 0-9, . 和 -；IPv4: 數字與點
+  return /^[a-zA-Z0-9.-]+$/.test(host);
 }
 
 const messageService = {
@@ -389,6 +396,52 @@ const messageService = {
           // console.log(msgs);
   
           return res.status(200).json(new response(requestCode.ok, msgs));
+        } catch (error) {
+          logging.error(error);
+          next(error);
+        }
+      },
+
+        /**
+     * Gat all msg
+     * @route {GET} /message/ping
+     * @param {express.Request} req 
+     * @param {express.Response} res 
+     * @param {express.NextFunction} next 
+     */
+      ping: async(req, res, next) => {
+        try {
+          const host = (req.query.host || '').trim();
+
+          if (!host || !isSafeHost(host)) throw new AppException(400, requestCode.error, `Host error`);
+          const isWin = process.platform === 'win32';
+          const cmd = isWin ? 'ping' : 'ping';
+          const args = isWin ? ['-n', '3', '-w', '2000', host] : ['-c', '3', '-W', '2', host];
+
+          execFile(cmd, args, { timeout: 5000 }, (err, stdout = '', stderr = '') => {
+            const out = String(stdout || '') + String(stderr || '');
+            // const out = stdout;
+            // 解析 time=...ms
+            logging.info(out);
+            const m = out.match(/time[=<]?\s*([0-9.]+)\s*ms/i);
+            logging.info(m);
+            const rtt = m ? parseFloat(m[1]) : null;
+            logging.info(rtt);
+        
+            // Windows 成功通常會有 "TTL="；Unix 成功通常會有 "1 packets received" 或 " 0% packet loss"
+            const reachable = /TTL=|ttl=|[1-9]\s+received|[0-9.]+%\s*packet loss/i.test(out) && !/100%\s*packet loss/i.test(out);
+        
+            // 某些環境失敗 err 會非空，但我們仍回傳 raw 以利除錯
+            // res.json();
+            return res.status(200).json(new response(requestCode.ok, {
+              host,
+              reachable: Boolean(reachable && rtt !== null) || (!err && rtt !== null),
+              rtt_ms: rtt,
+              raw: out
+            }));
+          });
+  
+          
         } catch (error) {
           logging.error(error);
           next(error);
