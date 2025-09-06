@@ -372,6 +372,28 @@ const messageService = {
         next(error);
       }
     },
+
+      /**
+   * Gat all msg
+   * @route {GET} /message/all
+   * @param {express.Request} req 
+   * @param {express.Response} res 
+   * @param {express.NextFunction} next 
+   */
+      allArticle: async(req, res, next) => {
+        try {
+          let msgs = await Message.find({}).select(
+            '-article -audio_path -__v'
+          ).sort({date: -1}).exec();
+          if(msgs==undefined) throw new AppException(204, requestCode.db_query_error, `Can't get msgs`);
+          // console.log(msgs);
+  
+          return res.status(200).json(new response(requestCode.ok, msgs));
+        } catch (error) {
+          logging.error(error);
+          next(error);
+        }
+      },
 };
 
 module.exports = messageService;
