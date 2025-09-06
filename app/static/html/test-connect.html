@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>遠端連線測試（Ping）</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, sans-serif; }
+    body { max-width: 720px; margin: 40px auto; padding: 0 16px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    input[type="text"]{ flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #ccc; }
+    button{ padding: 10px 16px; border: 0; border-radius: 10px; cursor: pointer; }
+    button.primary{ background: #0d6efd; color: #fff; }
+    .muted{ color: #666; font-size: 0.9em; }
+    .result{ margin-top: 16px; padding: 12px; border-radius: 10px; background: #f7f7f7; white-space: pre-wrap; }
+    .ok{ color: #0a7d2b; font-weight: 600; }
+    .fail{ color: #b30000; font-weight: 600; }
+    .latency{ font-variant-numeric: tabular-nums; }
+
+    /* --- 新增：狀態點與裝置列 --- */
+    .dev-list { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
+    .dev-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #eee; border-radius: 10px; background: #fafafa; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: #ccc; box-shadow: 0 0 0 1px rgba(0,0,0,.08) inset; }
+    .dot.ok { background: #22c55e; }   /* 綠色：reachable = true */
+    .dot.fail { background: #ef4444; }  /* 紅色：失敗 */
+    .host { font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .meta { color:#555; font-size: .92em; margin-left: auto; }
+    .hint { color:#777; font-size: .86em; }
+  </style>
+</head>
+<body>
+  <h1>遠端連線測試</h1>
+  <!-- <p class="muted">在瀏覽器中無法直接送 ICMP，但可由後端代為執行系統 <code>ping</code>，並回傳結果。</p> -->
+
+  <!-- 單一測試（保留原本功能） -->
+  <div class="card">
+    <div class="row">
+      <input id="host" type="text" placeholder="輸入 IP 或網域，例如 8.8.8.8 或 example.com" />
+      <button class="primary" id="btn">測試</button>
+    </div>
+    <div id="status" class="result" style="display:none;"></div>
+  </div>
+
+  <!-- 新增：五台裝置的狀態面板 -->
+  <div class="card" style="margin-top:16px;">
+    <div class="row" style="justify-content:space-between;align-items:center;">
+      <h2 style="margin:0;font-size:1.1rem;">五台裝置狀態</h2>
+      <div class="row" style="gap:6px;">
+        <button class="primary" id="btnAll">測試全部</button>
+        <button id="btnClear">清除結果</button>
+      </div>
+    </div>
+    <div class="hint">正常顯示綠色小圓點；失敗顯示紅色；尚未測試為灰色。</div>
+    <div id="devList" class="dev-list"></div>
+  </div>
+
+  <script>
+    const $host = document.getElementById('host');
+    const $btn = document.getElementById('btn');
+    const $status = document.getElementById('status');
+
+    async function testPing() {
+      const host = $host.value.trim();
+      if (!host) {
+        show(`請先輸入 IP 或網域`);
+        return;
+      }
+      show(`測試中… (${host})`);
+
+      try {
+        const resp = await fetch(`/ping?host=${encodeURIComponent(host)}`);
+        const data = await resp.json();
+
+        if (data.error) {
+          show(`❌ ${data.error}`);
+          return;
+        }
+
+        const lines = [];
+        if (data.reachable) {
+          lines.push(`✅ 連線成功`);
+          if (typeof data.rtt_ms === 'number') {
+            lines.push(`延遲：\u2009<span class="latency">${data.rtt_ms.toFixed(2)} ms</span>`);
+          }
+        } else {
+          lines.push(`❌ 連線失敗（可能封包被阻擋、主機離線，或網路不可達）`);
+        }
+        lines.push('');
+        lines.push(`<details><summary>詳細輸出</summary><pre>${escapeHtml(data.raw || '')}</pre></details>`);
+
+        show(lines.join('\n'), true);
+      } catch (err) {
+        show(`❌ 請求失敗：${String(err)}`);
+      }
+    }
+
+    function show(html, asHTML=false){
+      $status.style.display = 'block';
+      if (asHTML) $status.innerHTML = html;
+      else $status.textContent = html;
+    }
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+
+    $btn.addEventListener('click', testPing);
+    $host.addEventListener('keydown', (e) => { if (e.key === 'Enter') testPing(); });
+    $host.value = '8.8.8.8'; // 預設值
+
+    /* -----------------------
+       新增：五台裝置狀態
+    ------------------------*/
+    const DEVICE_IPS = [
+      '192.168.100.11',
+      '192.168.100.12',
+      '192.168.100.13',
+      '192.168.100.14',
+      '192.168.100.15',
+    ];
+
+    const $devList = document.getElementById('devList');
+    const $btnAll = document.getElementById('btnAll');
+    const $btnClear = document.getElementById('btnClear');
+
+    // 生成列表 UI
+    function renderDevices() {
+      $devList.innerHTML = '';
+      for (const ip of DEVICE_IPS) {
+        const id = ip2id(ip);
+        const row = document.createElement('div');
+        row.className = 'dev-row';
+        row.innerHTML = `
+          <span class="dot" id="dot-${id}" title="尚未測試"></span>
+          <span class="host">${ip}</span>
+          <span class="meta" id="meta-${id}">尚未測試</span>
+          <button style="margin-left:10px" data-ip="${ip}" class="test-one">測試</button>
+        `;
+        $devList.appendChild(row);
+      }
+      // 綁定每行「測試」按鈕
+      $devList.querySelectorAll('.test-one').forEach(btn => {
+        btn.addEventListener('click', () => testDevice(btn.getAttribute('data-ip')));
+      });
+    }
+
+    function ip2id(ip){ return ip.replace(/\./g, '-'); }
+
+    function setPending(ip) {
+      const id = ip2id(ip);
+      const dot = document.getElementById(`dot-${id}`);
+      const meta = document.getElementById(`meta-${id}`);
+      dot.classList.remove('ok','fail');
+      dot.title = '測試中…';
+      meta.textContent = '測試中…';
+    }
+
+    function setResult(ip, reachable, rttMs) {
+      const id = ip2id(ip);
+      const dot = document.getElementById(`dot-${id}`);
+      const meta = document.getElementById(`meta-${id}`);
+      dot.classList.remove('ok','fail');
+
+      if (reachable) {
+        dot.classList.add('ok');           // 綠色點
+        dot.title = '連線成功';
+        meta.innerHTML = typeof rttMs === 'number'
+          ? `✅ 成功，延遲 <span class="latency">${rttMs.toFixed(2)} ms</span>`
+          : '✅ 成功';
+      } else {
+        dot.classList.add('fail');         // 紅色點
+        dot.title = '連線失敗';
+        meta.textContent = '❌ 失敗（可能封包被擋、離線或不可達）';
+      }
+    }
+
+    async function testDevice(ip) {
+      try {
+        setPending(ip);
+        const resp = await fetch(`http://107.167.191.206:8082/api/message/ping?host=${encodeURIComponent(ip)}`);
+        const data = await resp.json();
+        if (data && !data.error) {
+          setResult(ip, !!data.reachable, data.rtt_ms);
+        } else {
+          setResult(ip, false, null);
+        }
+      } catch {
+        setResult(ip, false, null);
+      }
+    }
+
+    async function testAll() {
+      // 併發測試全部
+      await Promise.all(DEVICE_IPS.map(ip => testDevice(ip)));
+    }
+
+    function clearAll() {
+      // 恢復到「尚未測試（灰點）」狀態
+      for (const ip of DEVICE_IPS) {
+        const id = ip2id(ip);
+        const dot = document.getElementById(`dot-${id}`);
+        const meta = document.getElementById(`meta-${id}`);
+        dot.classList.remove('ok','fail');
+        dot.title = '尚未測試';
+        meta.textContent = '尚未測試';
+      }
+    }
+
+    $btnAll.addEventListener('click', testAll);
+    $btnClear.addEventListener('click', clearAll);
+
+    renderDevices();
+  </script>
+</body>
+</html>
