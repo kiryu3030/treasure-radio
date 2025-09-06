@@ -39,4 +39,8 @@ htmlRoute.get('/audio-test', (req, res) => {
   res.sendFile(path.join(HTML_DIR, 'audio-test.html'));
 });
 
+htmlRoute.get('/test-connect', (req, res) => {
+  res.sendFile(path.join(HTML_DIR, 'test-connect.html'));
+});
+
 module.exports = htmlRoute;
