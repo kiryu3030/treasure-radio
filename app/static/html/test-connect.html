@@ -183,7 +183,7 @@
         const resp = await fetch(`http://107.167.191.206:8082/api/message/ping?host=${encodeURIComponent(ip)}`);
         const data = await resp.json();
         if (data && !data.error) {
-          setResult(ip, !!data.reachable, data.rtt_ms);
+          setResult(ip, !!data.msg.reachable, data.msg.rtt_ms);
         } else {
           setResult(ip, false, null);
         }
