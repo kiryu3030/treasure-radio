@@ -20,7 +20,7 @@ const openai = new OpenAI({
 
 const yatingClient = new YatingClient('https://tts.api.yating.tw/v2/speeches/short', config.yating);
 
-let articleLenMin = 200;
+let articleLenMin = 220;
 let articleLenMax = 160;
 const selectSnow = ['新聞快訊', '命理占卜', '詩集閱讀', '聽眾信箱'];
 
@@ -82,7 +82,7 @@ const messageService = {
         for(let i=0; i<msgs.length; i++){
           wishs += `"${msgs[i]['wish']}"${i==msgs.length-1 ? "，" : "、"}`;
           names += `"${msgs[i]['name']}"${i==msgs.length-1 ? "" : "、"}`;
-          articleLenMin += 10;
+          // articleLenMin += 10;
         }
 
         console.log(wishs);
@@ -264,7 +264,7 @@ const messageService = {
         for(let i=0; i<msgs.length; i++){
           wishs += `"${msgs[i]['wish']}"${i==msgs.length-1 ? "，" : "、"}`;
           names += `"${msgs[i]['name']}"${i==msgs.length-1 ? "" : "、"}`;
-          articleLenMin += 10;
+          // articleLenMin += 10;
         }
 
         console.log(wishs);
