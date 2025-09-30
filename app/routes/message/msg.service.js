@@ -20,7 +20,7 @@ const openai = new OpenAI({
 
 const yatingClient = new YatingClient('https://tts.api.yating.tw/v2/speeches/short', config.yating);
 
-let articleLenMin = 220;
+let articleLenMin = 190;
 let articleLenMax = 160;
 const selectSnow = ['新聞快訊', '命理占卜', '詩集閱讀', '聽眾信箱'];
 
@@ -300,7 +300,7 @@ const messageService = {
         }
         console.log(userRole);
         const completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-4o",
           messages: [
             { role: "system", content: `${systemRole}` },
             { role: "user", content: `${userRole}` }
